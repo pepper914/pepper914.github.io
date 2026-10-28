@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="英语游戏">
+<meta name="theme-color" content="#fff8ee">
+<title>本周英语游戏</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+  <!-- 顶部栏 -->
+  <header class="topbar">
+    <div class="kid-switch" id="kidSwitch">
+      <button class="kid-btn" data-kid="juicy"><span class="kid-face">👧</span><span class="kid-name">juicy</span></button>
+      <button class="kid-btn" data-kid="geimi"><span class="kid-face">🧒</span><span class="kid-name">geimi</span></button>
+    </div>
+    <div class="week-title">
+      <div class="week-label" id="weekLabel">本周句型</div>
+      <div class="week-sub" id="weekSub">点右边「录入」放句型和单词</div>
+    </div>
+    <button class="edit-btn" id="editBtn">✏️ 录入</button>
+    <div class="star-box">
+      <span class="star-icon">⭐</span>
+      <span class="star-num" id="starNum">0</span>
+    </div>
+  </header>
+
+  <!-- 主视图区 -->
+  <main id="view" class="view"></main>
+
+  <!-- 底部导航 -->
+  <nav class="tabbar" id="tabbar">
+    <button class="tab" data-view="puzzle"><span class="tab-ico">🧩</span><span class="tab-txt">拼句子</span></button>
+    <button class="tab" data-view="fill"><span class="tab-ico">🕳️</span><span class="tab-txt">填空</span></button>
+    <button class="tab" data-view="listen"><span class="tab-ico">👂</span><span class="tab-txt">听音</span></button>
+    <button class="tab" data-view="talk"><span class="tab-ico">💬</span><span class="tab-txt">对话</span></button>
+    <button class="tab" data-view="setup"><span class="tab-ico">✏️</span><span class="tab-txt">录入</span></button>
+  </nav>
+</div>
+
+<!-- 通用弹层 -->
+<div class="overlay hidden" id="overlay">
+  <div class="overlay-card" id="overlayCard"></div>
+</div>
+
+<!-- 彩纸层 -->
+<div id="confetti" class="confetti-layer"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
