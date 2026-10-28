@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="英语游戏">
 <meta name="theme-color" content="#fff8ee">
-<title>本周英语游戏</title>
+<title>英语冰雪岛 · Elsa & Anna</title>
 <style>
 /* ===== 基础 ===== */
 * {
@@ -22,7 +22,7 @@ html, body {
   padding: 0;
   height: 100%;
   overflow: hidden;
-  background: #fff8ee;
+  background: #e9f4fe;
   font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
   color: #3a3a3a;
   touch-action: manipulation;
@@ -42,7 +42,7 @@ button {
   height: 100vh;
   max-width: 1180px;
   margin: 0 auto;
-  background: #fffdf8;
+  background: #f3faff;
 }
 
 /* ===== 顶部栏 ===== */
@@ -55,7 +55,7 @@ button {
   padding: 12px 20px;
   padding-top: max(12px, env(safe-area-inset-top));
   background: #fff;
-  border-bottom: 3px solid #ffe6cc;
+  border-bottom: 3px solid #cfe6ff;
 }
 
 .kid-switch {
@@ -77,9 +77,9 @@ button {
 }
 
 .kid-btn.active {
-  background: #ffb27a;
+  background: #74bdf0;
   color: #fff;
-  box-shadow: 0 4px 0 #f0935a;
+  box-shadow: 0 4px 0 #46a0dc;
 }
 
 .kid-face { font-size: 24px; }
@@ -109,8 +109,8 @@ button {
   min-height: 52px;
   padding: 0 22px;
   border-radius: 16px;
-  background: #ffe9d2;
-  color: #e08238;
+  background: #dcf0ff;
+  color: #1a6fb8;
   font-size: 19px;
   font-weight: 900;
   transition: transform .12s;
@@ -122,7 +122,7 @@ button {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #fff4d6;
+  background: #e0f1ff;
   padding: 8px 16px;
   border-radius: 999px;
 }
@@ -132,7 +132,7 @@ button {
 .star-num {
   font-size: 24px;
   font-weight: 900;
-  color: #f5a623;
+  color: #1f7fc4;
 }
 
 /* ===== 主视图 ===== */
@@ -153,7 +153,7 @@ button {
   flex: 0 0 auto;
   display: flex;
   background: #fff;
-  border-top: 3px solid #ffe6cc;
+  border-top: 3px solid #cfe6ff;
   padding-bottom: env(safe-area-inset-bottom);
 }
 
@@ -174,7 +174,7 @@ button {
 .tab-txt { font-size: 14px; }
 
 .tab.active {
-  color: #ff8b3d;
+  color: #1f7fc4;
 }
 
 .tab.active .tab-ico {
@@ -205,7 +205,7 @@ button {
   min-height: 64px;
   padding: 0 30px;
   border-radius: 20px;
-  background: #ff9f43;
+  background: #4fa8e8;
   color: #fff;
   font-size: 24px;
   font-weight: 800;
@@ -312,20 +312,20 @@ button {
   padding: 0 14px;
   border-radius: 16px;
   border: 3px solid #ffd1a3;
-  background: #fffaf3;
+  background: #f2fbff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28px;
   font-weight: 800;
-  color: #ff8b3d;
+  color: #1f7fc4;
   transition: all .15s;
 }
 
 .slot.filled {
   background: #fff;
   border-style: solid;
-  border-color: #ffb27a;
+  border-color: #74bdf0;
   color: #3a3a3a;
   box-shadow: 0 3px 0 #ffd9b8;
 }
@@ -376,8 +376,8 @@ button {
 }
 
 .word-card.hinted {
-  border-color: #ffb27a;
-  background: #fff6ec;
+  border-color: #74bdf0;
+  background: #eaf6ff;
   animation: pop .3s;
 }
 
@@ -401,9 +401,56 @@ button {
 
 .fill-sentence .blank {
   display: inline-block;
-  min-width: 150px;
-  border-bottom: 6px solid #ff9f43;
-  color: #ff9f43;
+  min-width: 110px;
+  padding: 0 6px;
+  border-bottom: 6px solid #4fa8e8;
+  color: #4fa8e8;
+}
+
+/* 正在填的那个空：底色highlight，孩子一眼知道该填哪 */
+.fill-sentence .blank.cur {
+  background: #e0f1ff;
+  border-bottom-color: #2f8fd8;
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+.fill-sentence .blank.filled {
+  color: #2e9e46;
+  border-bottom-color: #7bd389;
+  background: transparent;
+  animation: none;
+}
+
+@keyframes blink {
+  0%, 100% { background: #e0f1ff; }
+  50%      { background: #cfe9ff; }
+}
+
+/* 中文题面（中译英） */
+.fill-sentence.zh-big {
+  font-size: 46px;
+  color: #2b2b2b;
+  margin: 26px 0 34px;
+}
+
+/* 进阶模式提示条 */
+.page-hint.hard-tip {
+  display: inline-block;
+  background: #e0f1ff;
+  color: #16639e;
+  font-weight: 800;
+  font-size: 17px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  margin: 0 auto 6px;
+}
+
+/* 选项是整句时，字号降下来，避免溢出 */
+.opt-card.sent .en {
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: left;
 }
 
 .fill-zh {
@@ -566,7 +613,7 @@ button {
   background: #e6e6ee;
 }
 
-.dot.on { background: #ff9f43; }
+.dot.on { background: #4fa8e8; }
 .dot.done { background: #7bd389; }
 
 /* ===== 设置页 ===== */
@@ -575,7 +622,7 @@ button {
   border-radius: 24px;
   padding: 20px;
   margin-bottom: 18px;
-  border: 3px solid #ffe6cc;
+  border: 3px solid #cfe6ff;
 }
 
 .setup-block h3 {
@@ -610,7 +657,7 @@ textarea.input {
 
 textarea.input:focus {
   outline: none;
-  border-color: #ffb27a;
+  border-color: #74bdf0;
 }
 
 input.input {
@@ -627,7 +674,7 @@ input.input {
   background: #fdfdfd;
 }
 
-input.input:focus { outline: none; border-color: #ffb27a; }
+input.input:focus { outline: none; border-color: #74bdf0; }
 
 .row-btns {
   display: flex;
@@ -647,7 +694,7 @@ input.input:focus { outline: none; border-color: #ffb27a; }
 }
 
 .small-btn:active { transform: scale(.96); }
-.small-btn.primary { background: #ff9f43; color: #fff; }
+.small-btn.primary { background: #4fa8e8; color: #fff; }
 .small-btn.danger { background: #fff0f0; color: #d96969; }
 
 .word-chips {
@@ -663,7 +710,7 @@ input.input:focus { outline: none; border-color: #ffb27a; }
   gap: 6px;
   padding: 10px 16px;
   border-radius: 999px;
-  background: #fff6ec;
+  background: #eaf6ff;
   font-size: 18px;
   font-weight: 700;
 }
@@ -798,9 +845,587 @@ input.input:focus { outline: none; border-color: #ffb27a; }
 
 .hidden { display: none !important; }
 
+/* =========================================================
+   冰雪世界：雪花、角色、剧本对话
+   ========================================================= */
+
+/* 飘雪背景（不挡点击） */
+.snow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.snow .flake {
+  position: absolute;
+  top: -40px;
+  color: #9fd3f5;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to { transform: translateY(112vh) rotate(320deg); }
+}
+
+#app { position: relative; z-index: 1; }
+
+/* ------ 角色头像 ------ */
+.role-pick {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.role-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 18px 12px;
+  border-radius: 22px;
+  background: #fff;
+  border: 4px solid #d8e9fb;
+  transition: transform .15s, border-color .15s;
+}
+
+.role-card .av { width: 74px; height: 74px; }
+
+.role-card .nm {
+  font-size: 17px;
+  font-weight: 900;
+  color: #4a7fa8;
+}
+
+.role-card.on {
+  border-color: #4fa8e8;
+  background: #eaf6ff;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 0 #b9dcf7;
+}
+
+.role-card.on.anna { border-color: #f0873f; background: #fff2e8; box-shadow: 0 6px 0 #f9c8a2; }
+.role-card.on.anna .nm { color: #c95f18; }
+
+/* ------ 剧情台词卡 ------ */
+.scene {
+  background: linear-gradient(180deg, #fff 0%, #f2faff 100%);
+  border: 4px solid #cfe6ff;
+  border-radius: 26px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.scene-line {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.scene-line.me { flex-direction: row-reverse; }
+
+.scene-line .av {
+  width: 84px;
+  height: 84px;
+  flex: 0 0 auto;
+}
+
+.scene-line .who {
+  font-size: 15px;
+  font-weight: 800;
+  color: #8aa8c4;
+  margin-bottom: 4px;
+}
+
+.scene-line.me .who { text-align: right; }
+
+.bubble {
+  flex: 1;
+  background: #fff;
+  border: 4px solid #d8e9fb;
+  border-radius: 20px;
+  padding: 14px 18px;
+}
+
+.scene-line.me .bubble {
+  background: #eaf6ff;
+  border-color: #a8d4f5;
+}
+
+.bubble .en {
+  font-size: 27px;
+  font-weight: 900;
+  color: #2b5f8c;
+  line-height: 1.35;
+}
+
+.bubble .zh {
+  font-size: 16px;
+  color: #8aa8c4;
+  margin-top: 4px;
+}
+
+/* 正在轮到她说的那一句 */
+.scene-line.active .bubble {
+  border-color: #4fa8e8;
+  box-shadow: 0 0 0 4px #cfe9ff;
+}
+
+.scene-role-tip {
+  text-align: center;
+  font-size: 17px;
+  font-weight: 800;
+  color: #1f7fc4;
+  margin: 10px 0 0;
+}
+
+/* ------ 两人对话：爱莎 ⇄ 女儿 ------ */
+.duo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.duo-who {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 148px;
+  padding: 10px 16px 12px;
+  border-radius: 24px;
+  background: #fff;
+  border: 4px solid #d8e9fb;
+}
+
+.duo-who .av { width: 84px; height: 84px; }
+.duo-who.elsa { border-color: #a8d4f5; background: #f0f9ff; }
+.duo-who.kid { border-color: #f7b8d0; background: #fff5f9; }
+
+.duo-nm {
+  font-size: 18px;
+  font-weight: 900;
+  color: #2b5f8c;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.duo-nm span {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #9ab4c9;
+}
+
+.duo-vs { font-size: 26px; }
+
+/* 自己上传的照片头像 */
+.av.pic { border-radius: 50%; object-fit: cover; background: #fff; }
+
+.mini-btn {
+  margin-top: 2px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #c95f8a;
+  background: #fff;
+  border: 2px solid #f7c9dc;
+  border-radius: 14px;
+}
+
+.chat {
+  background: linear-gradient(180deg, #fff 0%, #f2faff 100%);
+  border: 4px solid #cfe6ff;
+  border-radius: 26px;
+  padding: 16px 14px 6px;
+  margin-bottom: 14px;
+}
+
+.msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  opacity: .6;
+}
+
+.msg.kid { flex-direction: row-reverse; }
+.msg .av { width: 52px; height: 52px; flex: 0 0 auto; }
+
+.msg .bubble {
+  max-width: calc(100% - 72px);
+  background: #fff;
+  border: 3px solid #e3eefb;
+  border-radius: 18px;
+  padding: 8px 14px;
+}
+
+.msg .bubble .en { font-size: 19px; font-weight: 800; color: #4a7fa8; line-height: 1.35; }
+.msg .bubble .zh { font-size: 14px; color: #9ab4c9; margin-top: 2px; }
+.msg .tip { font-size: 13px; font-weight: 800; color: #b7c8d8; margin-top: 3px; }
+.msg.kid .bubble { background: #fff2f7; border-color: #f8cfdf; }
+.msg.kid .bubble .en { color: #c25b86; }
+.msg.past { cursor: pointer; }
+
+.msg.future { opacity: .38; }
+.msg.future .bubble {
+  background: #f6f9fc;
+  border-style: dashed;
+  border-color: #dbe7f3;
+  color: #bccfe0;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.msg.now { opacity: 1; }
+.msg.now .av { width: 88px; height: 88px; }
+
+.msg.now .bubble {
+  max-width: calc(100% - 108px);
+  padding: 14px 18px;
+  border-width: 4px;
+  border-color: #4fa8e8;
+  box-shadow: 0 0 0 4px #dcefff;
+}
+
+.msg.now .bubble .en { font-size: 30px; color: #1f5d8c; }
+.msg.now .bubble .zh { font-size: 17px; }
+.msg.now .tip { font-size: 16px; color: #1f7fc4; }
+.msg.now.kid .bubble { border-color: #ef87ae; box-shadow: 0 0 0 4px #ffe0ec; }
+.msg.now.kid .bubble .en { color: #b93d6d; }
+.msg.now.kid .tip { color: #c95f8a; }
+
+.big-btn.pink { background: #f2789f; box-shadow: 0 5px 0 #d95c86; }
+.big-btn.pink:active { box-shadow: 0 1px 0 #d95c86; }
+
+/* ------ 城堡进度（四个区域） ------ */
+.castle-bar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  flex-wrap: wrap;
+}
+
+.castle-node {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #eef6fd;
+  border: 3px solid #dbe9f8;
+  font-size: 15px;
+  font-weight: 800;
+  color: #a9bfd4;
+}
+
+.castle-node.done {
+  background: #dff0ff;
+  border-color: #8cc6ee;
+  color: #1f7fc4;
+}
+
+/* =========================================================
+   剧情章节：故事地图 + 章节横幅
+   ========================================================= */
+.story-map {
+  background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+  border: 4px solid #cfe6ff;
+  border-radius: 26px;
+  padding: 16px 18px 10px;
+  margin-bottom: 20px;
+}
+
+.story-head {
+  text-align: center;
+  font-size: 21px;
+  font-weight: 900;
+  color: #1f7fc4;
+  margin-bottom: 12px;
+}
+
+.chapter {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  opacity: 0.92;
+}
+
+.chapter.done { background: #e7f6ff; }
+.chapter.open { background: #fff; border: 3px solid #a8d4f5; }
+.chapter.lock { background: #f0f4f9; opacity: 0.55; }
+
+.chapter.lock .ch-title,
+.chapter.lock .ch-text { color: #9ab0c4; }
+
+.ch-ico {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  background: #fff;
+  border-radius: 50%;
+  border: 3px solid #dbe9f8;
+}
+
+.chapter.open .ch-ico { border-color: #4fa8e8; box-shadow: 0 0 0 5px #e3f2ff; }
+
+.ch-title {
+  font-size: 19px;
+  font-weight: 900;
+  color: #2b5f8c;
+}
+
+.ch-text {
+  font-size: 15px;
+  color: #6f93b1;
+  margin-top: 3px;
+  line-height: 1.45;
+}
+
+.ch-path {
+  width: 5px;
+  height: 20px;
+  margin-left: 38px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(#bcdcf5 0 6px, transparent 6px 12px);
+}
+
+/* 游戏页顶部章节横幅 */
+.chapter-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: #e7f3fd;
+  border: 3px solid #c6e2f8;
+  border-radius: 999px;
+  padding: 7px 18px;
+  margin: 0 auto 14px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #2b5f8c;
+  width: fit-content;
+}
+
+.chapter-banner .cb-n {
+  background: #4fa8e8;
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 12px;
+  font-size: 15px;
+}
+
+.chapter-banner .cb-tip {
+  color: #7fa3c0;
+  font-weight: 700;
+}
+
+/* =========================================================
+   拼写：字母格 / 字母卡 / 屏幕键盘
+   ========================================================= */
+.sp-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.sp-ico { font-size: 44px; }
+
+.sp-zh {
+  font-size: 26px;
+  font-weight: 900;
+  color: #2b5f8c;
+}
+
+.sp-speak {
+  font-size: 17px;
+  font-weight: 800;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #eaf6ff;
+  border: 3px solid #bcdcf5;
+  color: #2b7fc4;
+}
+
+.sp-stage {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0;
+  border-radius: 20px;
+  transition: background .2s;
+}
+
+.sp-stage.bad { animation: shake .4s; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-9px); }
+  75% { transform: translateX(9px); }
+}
+
+.sp-slots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sp-slot {
+  min-width: 54px;
+  height: 70px;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  font-weight: 900;
+  color: #2b5f8c;
+  background: #fff;
+  border: 4px solid #cfe6ff;
+  border-radius: 14px;
+  text-transform: lowercase;
+}
+
+.sp-slot.fixed {
+  background: #eef6fd;
+  border-color: #dbe9f8;
+  color: #7fa3c0;
+}
+
+.sp-slot.ok {
+  background: #e4f7e8;
+  border-color: #86d99b;
+  color: #2f8f4e;
+}
+
+.sp-slot.cur {
+  border-color: #4fa8e8;
+  box-shadow: 0 0 0 5px #dbeefc;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { box-shadow: 0 0 0 5px #dbeefc; }
+  50% { box-shadow: 0 0 0 5px #a8d4f5; }
+}
+
+.sp-msg {
+  text-align: center;
+  min-height: 26px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #2f8f4e;
+  margin: 10px 0 4px;
+}
+
+.sp-msg.bad { color: #d9534f; }
+
+.sp-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0 6px;
+}
+
+.sp-card {
+  min-width: 58px;
+  height: 66px;
+  font-size: 32px;
+  font-weight: 900;
+  text-transform: lowercase;
+  color: #2b5f8c;
+  background: linear-gradient(180deg, #fff 0%, #eaf6ff 100%);
+  border: 4px solid #bcdcf5;
+  border-radius: 16px;
+  box-shadow: 0 4px 0 #cfe6ff;
+}
+
+.sp-card:active { transform: translateY(3px); box-shadow: 0 1px 0 #cfe6ff; }
+
+.sp-card.used {
+  opacity: .32;
+  background: #f1f5f9;
+  border-color: #dbe4ee;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.sp-kb { margin: 14px 0 6px; }
+
+.sp-kb-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.sp-key {
+  min-width: 52px;
+  height: 58px;
+  font-size: 25px;
+  font-weight: 900;
+  color: #2b5f8c;
+  background: #fff;
+  border: 3px solid #cfe6ff;
+  border-radius: 12px;
+  box-shadow: 0 3px 0 #cfe6ff;
+}
+
+.sp-key:active { transform: translateY(3px); box-shadow: none; }
+
+.sp-key.wide {
+  min-width: 150px;
+  font-size: 20px;
+  background: #fff2e8;
+  border-color: #f9c8a2;
+  box-shadow: 0 3px 0 #f9c8a2;
+  color: #c95f18;
+}
+
+.sp-bar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+/* 六个 tab 时略微收紧，避免 iPad 竖屏挤 */
+.tabbar .tab { flex: 1; min-width: 0; }
+.tabbar .tab-txt { font-size: 15px; }
+
+/* 弹层里并排的按钮 */
+.ov-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
 </style>
 </head>
 <body>
+
+<!-- 飘雪背景 -->
+<div class="snow" id="snow"></div>
 
 <div id="app">
   <!-- 顶部栏 -->
@@ -815,7 +1440,7 @@ input.input:focus { outline: none; border-color: #ffb27a; }
     </div>
     <button class="edit-btn" id="editBtn">✏️ 录入</button>
     <div class="star-box">
-      <span class="star-icon">⭐</span>
+      <span class="star-icon">❄️</span>
       <span class="star-num" id="starNum">0</span>
     </div>
   </header>
@@ -826,6 +1451,7 @@ input.input:focus { outline: none; border-color: #ffb27a; }
   <!-- 底部导航 -->
   <nav class="tabbar" id="tabbar">
     <button class="tab" data-view="puzzle"><span class="tab-ico">🧩</span><span class="tab-txt">拼句子</span></button>
+    <button class="tab" data-view="spell"><span class="tab-ico">✍️</span><span class="tab-txt">拼写</span></button>
     <button class="tab" data-view="fill"><span class="tab-ico">🕳️</span><span class="tab-txt">填空</span></button>
     <button class="tab" data-view="listen"><span class="tab-ico">👂</span><span class="tab-txt">听音</span></button>
     <button class="tab" data-view="talk"><span class="tab-ico">💬</span><span class="tab-txt">对话</span></button>
@@ -915,13 +1541,47 @@ const KEY_DATA = 'enggame_data_v1';
 const KEY_PROG = 'enggame_prog_v1';
 
 function blankData() {
-  return { week: '本周', sentences: [], words: [], isDemo: false, settings: { recog: false, rate: 0.85 } };
+  return { week: '本周', sentences: [], words: [], isDemo: false, settings: { recog: false, rate: 0.85, role: 'anna' } };
+}
+
+/* 课堂笔记 PDF（2026-10-28）整理出来的第 1 周真实内容：内置为默认，
+   这样 iPad 第一次打开就是孩子这周真正学的东西，不用先录入 */
+function week1Data() {
+  const RAW_S = [
+    "What's this? | 这是什么？",
+    "It's a pen. | 这是一支钢笔。",
+    "It's an eraser. | 这是一块橡皮。",
+    "It's a pencil. | 这是一支铅笔。",
+    "It's a ruler. | 这是一把尺子。",
+    "It's a book. | 这是一本书。",
+    "They're my school things. | 它们是我的学习用品。",
+    "Can I have my school things, please? | 请问，我能拿回我的学习用品吗？",
+    "OK, here you are. | 好的，给你。"
+  ];
+  const RAW_W = [
+    // 名词（文具）
+    'pen 钢笔', 'pencil 铅笔', 'eraser 橡皮', 'ruler 尺子', 'book 书',
+    // 代词：主格 / 宾格 / 形容词性物主代词（老师手写那张表）
+    'I 我（做主语）', 'me 我（做宾语）', 'my 我的',
+    'you 你/你们', 'your 你的/你们的',
+    'he 他（做主语）', 'him 他（做宾语）', 'his 他的',
+    'she 她（做主语）', 'her 她（做宾语）/她的', 'it 它', 'its 它的',
+    'we 我们（做主语）', 'us 我们（做宾语）', 'our 我们的',
+    'they 他们（做主语）', 'them 他们（做宾语）', 'their 他们的'
+  ];
+  return {
+    week: '第 1 周 · School things',
+    sentences: RAW_S.map(splitSent).filter(x => x && x.en),
+    words: RAW_W.map(splitWord).filter(x => x && x.en),
+    isDemo: false,
+    settings: { recog: false, rate: 0.85, role: 'anna' }
+  };
 }
 
 function loadData() {
   try {
     const raw = localStorage.getItem(KEY_DATA);
-    if (!raw) return blankData();
+    if (!raw) return week1Data();
     const d = JSON.parse(raw);
     // 老数据没有 isDemo 字段：如果内容还是那套示例，仍然标成示例
     if (d.isDemo === undefined && d.week === '第 1 周' && Array.isArray(d.sentences)
@@ -959,9 +1619,316 @@ const state = {
   puzzleIdx: null,
   fillQs: [], fillI: 0,
   listenQs: [], listenI: 0,
+  spellQs: [], spellI: 0, spellBuf: [], spellUsed: [], spellGapAt: 0, spellMsg: '', spellBad: false,
   talkI: 0,
   recording: false
 };
+
+/* ---------- 难度档位（按孩子分别记） ---------- */
+function levelOf(kid) {
+  const p = prog[kid || state.kid];
+  return (p && p.level) || 'hard';
+}
+
+function setLevel(lv) {
+  const p = prog[state.kid] || (prog[state.kid] = { awarded: {} });
+  p.level = lv;
+  saveProg();
+  state.fillQs = []; state.fillI = 0;
+  state.listenQs = []; state.listenI = 0;
+  state.spellQs = []; state.spellI = 0; spResetBuf();
+  // 只有在拼图页才重画，别的页面没有 #slots 容器
+  if (state.puzzleIdx !== null && state.view === 'puzzle') initPuzzle();
+}
+
+// 换背板，用什么角色的皮肤
+function setTheme(t) {
+  data.settings.theme = t;
+  saveData();
+  applyTheme();
+}
+
+// 本周出现过的所有英文实词（去掉标点、缩写、功能词）
+function contentWords() {
+  const pool = [];
+  data.words.forEach(w => {
+    String(w.en).split(/\s+/).forEach(t => { if (/^[A-Za-z]/.test(t)) pool.push(t.replace(/[.,!?]/g, '')); });
+  });
+  data.sentences.forEach(s => {
+    tokenize(s.en).forEach(t => {
+      const bare = t.replace(/[.,!?]/g, '');
+      if (/^[A-Za-z]/.test(bare) && bare.length > 1 && !STOP.has(bare.toLowerCase()) && !/['']/.test(bare)) pool.push(bare);
+    });
+  });
+  return Array.from(new Set(pool.filter(Boolean)));
+}
+
+// 干扰项：优先本周同类词、首字母相同（形近），不够用内置词库补
+function optsAround(target, n) {
+  const t = String(target).replace(/[.,!?]/g, '');
+  const tl = t.toLowerCase();
+  let pool = contentWords().filter(w => w.toLowerCase() !== tl);
+  const first = w => (w[0] || '').toLowerCase() === (t[0] || '').toLowerCase() ? 0 : 1;
+  pool = shuffle(pool).sort((a, b) => first(a) - first(b));
+  let picked = pool.slice(0, n - 1);
+  if (picked.length < n - 1) picked = picked.concat(filler(n - 1 - picked.length, [t].concat(picked)));
+  return shuffle([t].concat(picked));
+}
+
+// 简单模式的选项：本周词随机
+function easyOpts(target) {
+  const all = data.words.map(w => w.en);
+  let pool = all.filter(x => x.toLowerCase() !== String(target).toLowerCase());
+  const need = 3 - pool.length;
+  if (need > 0) pool = pool.concat(filler(need, pool.concat([target])));
+  return shuffle([target].concat(shuffle(pool).slice(0, 3)));
+}
+
+// 多余的卡片（拼句子用）
+function decoys(exclude, n) {
+  const ex = new Set(exclude.map(x => String(x).replace(/[.,!?]/g, '').toLowerCase()));
+  let pool = contentWords().filter(w => !ex.has(w.toLowerCase()));
+  if (pool.length < n) pool = pool.concat(filler(n - pool.length, Array.from(ex)));
+  return shuffle(pool).slice(0, n);
+}
+
+// 把一个句子换个关键词，造出「听着很像」的干扰句
+function sentVariants(s, n) {
+  const toks = tokenize(s.en);
+  const cand = [];
+  toks.forEach((t, i) => {
+    const bare = t.replace(/[.,!?]/g, '');
+    if (/^[A-Za-z]/.test(bare) && bare.length > 2 && !STOP.has(bare.toLowerCase()) && !/['']/.test(bare)) cand.push(i);
+  });
+  const subs = shuffle(contentWords().concat(DICT.slice(0, 80)));
+  const outs = [];
+  for (const i of cand) {
+    if (outs.length >= n) break;
+    const w = toks[i];
+    const bare = w.replace(/[.,!?]/g, '');
+    const tailCh = w.slice(bare.length);
+    const alt = subs.find(x => x.toLowerCase() !== bare.toLowerCase());
+    if (!alt) continue;
+    const copy = toks.slice();
+    copy[i] = alt + tailCh;
+    outs.push(copy.join(' ').replace(/\s+([.,!?])/g, '$1'));
+  }
+  return outs;
+}
+
+/* ---------- 冰雪世界：角色头像（自绘，不用影视素材） ---------- */
+const ROLES = {
+  elsa: { name: '爱莎', en: 'Elsa' },
+  anna: { name: '安娜', en: 'Anna' },
+  kid: { name: '宝贝', en: '' }
+};
+
+// 当前在玩的那个孩子的名字（Juicy / Geimi）
+function kidName() {
+  return state.kid === 'geimi' ? 'Geimi' : 'Juicy';
+}
+function nameOf(r) {
+  return r === 'kid' ? kidName() : (ROLES[r] && ROLES[r].name) || '';
+}
+// 女儿头像：优先用她自己的照片（设置页/对话页上传），没有就用画的小女孩
+function kidAvatar(who) {
+  const pic = (data.settings && data.settings.avatar || {})[state.kid];
+  if (pic) return `<img class="av pic" src="${pic}" alt="${esc(kidName())}">`;
+  return kidAvatarSVG(state.kid);
+}
+
+function avatarSVG(who) {
+  if (who === 'kid') return kidAvatar(who);
+  const els = who === 'elsa';
+  const skin = '#fde3c8', skinSh = '#f3cfab';
+
+  if (els) {
+    /* ---- 爱莎：冰蓝裙 · 金色侧编麻花辫 · 小冰晶皇冠 · 雪花背景 ---- */
+    return `<svg class="av" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="ebg" cx="50%" cy="35%" r="75%">
+        <stop offset="0%" stop-color="#dff2ff"/><stop offset="100%" stop-color="#9ecdf0"/>
+      </radialGradient>
+    </defs>
+    <circle cx="50" cy="50" r="49" fill="url(#ebg)"/>
+    <g stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity=".75">
+      <g transform="translate(18,22)"><path d="M0 -5 V5 M-4.3 -2.5 L4.3 2.5 M4.3 -2.5 L-4.3 2.5"/></g>
+      <g transform="translate(84,40) scale(.8)"><path d="M0 -5 V5 M-4.3 -2.5 L4.3 2.5 M4.3 -2.5 L-4.3 2.5"/></g>
+    </g>
+    <!-- 披风与裙 -->
+    <path d="M28 62 C20 74 16 88 15 100 L85 100 C84 88 80 74 72 62Z" fill="#bfe4f9" opacity=".9"/>
+    <path d="M31 60 C25 70 21 84 20 100 L80 100 C79 84 75 70 69 60Z" fill="#8ed0f2"/>
+    <path d="M50 58 L46 100 L54 100Z" fill="#5fb7e6"/>
+    <path d="M36 86 Q50 92 64 86 L62 96 Q50 100 38 96Z" fill="#e8f7ff" opacity=".8"/>
+    <!-- 肩颈 -->
+    <path d="M42 54 C42 60 58 60 58 54 L58 62 L42 62Z" fill="${skin}"/>
+    <path d="M43 55 Q50 60 57 55 L57 58 Q50 62 43 58Z" fill="${skinSh}" opacity=".55"/>
+    <!-- 脑后金发 -->
+    <ellipse cx="50" cy="34" rx="23" ry="21" fill="#f0dcab"/>
+    <ellipse cx="31" cy="44" rx="9" ry="15" fill="#f0dcab"/>
+    <ellipse cx="69" cy="44" rx="9" ry="15" fill="#f0dcab"/>
+    <!-- 侧编麻花辫（垂在左肩） -->
+    <g fill="#eed9a4" stroke="#d9be7f" stroke-width="1">
+      <circle cx="30" cy="52" r="6.5"/>
+      <circle cx="27" cy="63" r="6"/>
+      <circle cx="26" cy="74" r="5.5"/>
+      <circle cx="26" cy="85" r="5"/>
+    </g>
+    <path d="M23 88 L29 92 L26 96Z" fill="#7fd4ef"/>
+    <!-- 脸 -->
+    <ellipse cx="50" cy="42" rx="16.5" ry="17.5" fill="${skin}"/>
+    <!-- 刘海（侧分大波浪） -->
+    <path d="M33.5 44 C30 22 42 12 51 12 C64 12 70 24 67 38 C66 30 61 24 55 24 C60 30 60 36 58 40 C56 31 50 26 44 27 C38 28 34 34 33.5 44Z" fill="#f0dcab"/>
+    <path d="M55 24 C59 28 61 33 60.5 38" stroke="#d9be7f" stroke-width="1.2" fill="none" opacity=".7"/>
+    <!-- 冰晶皇冠 -->
+    <path d="M44 13 L47 7 L50 12 L53 7 L56 13" fill="none" stroke="#8fd8f5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="50" cy="6.5" r="2" fill="#c9ecfd"/>
+    <!-- 眉眼（蓝眼睛） -->
+    <path d="M39 37 Q43 35 47 37" stroke="#caa64f" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <path d="M53 37 Q57 35 61 37" stroke="#caa64f" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="43" cy="43" rx="2.9" ry="3.4" fill="#3c7fb1"/>
+    <ellipse cx="57" cy="43" rx="2.9" ry="3.4" fill="#3c7fb1"/>
+    <circle cx="44" cy="41.6" r="1.1" fill="#fff"/>
+    <circle cx="58" cy="41.6" r="1.1" fill="#fff"/>
+    <path d="M38.5 42.5 Q39.5 41 41 41.5" stroke="#2b5f85" stroke-width="1.1" fill="none"/>
+    <path d="M52.5 42.5 Q53.5 41 55 41.5" stroke="#2b5f85" stroke-width="1.1" fill="none"/>
+    <!-- 腮红微笑 -->
+    <ellipse cx="38" cy="48.5" rx="3.6" ry="2.2" fill="#ffbcc0" opacity=".5"/>
+    <ellipse cx="62" cy="48.5" rx="3.6" ry="2.2" fill="#ffbcc0" opacity=".5"/>
+    <path d="M46.5 51.5 Q50 55 53.5 51.5" stroke="#c96a72" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+  </svg>`;
+  }
+
+  /* ---- 安娜：棕红发双辫 · 雀斑 · 玫红披风 · 绿裙 ---- */
+  return `<svg class="av" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="abg" cx="50%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#fff4e3"/><stop offset="100%" stop-color="#bfe3c9"/>
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="50" r="49" fill="url(#abg)"/>
+  <!-- 玫红披风 -->
+  <path d="M28 61 C19 73 15 87 14 100 L86 100 C85 87 81 73 72 61Z" fill="#c2447e"/>
+  <path d="M30 60 C24 70 20 84 19 100 L81 100 C80 84 76 70 70 60Z" fill="#3e8e5a"/>
+  <!-- 黑色小坎肩 + 金扣 -->
+  <path d="M40 60 C42 66 58 66 60 60 L62 74 C56 79 44 79 38 74Z" fill="#33404d"/>
+  <circle cx="50" cy="66" r="2" fill="#f2c14e"/>
+  <path d="M46 63 Q50 67 54 63" stroke="#f2c14e" stroke-width="1.6" fill="none"/>
+  <!-- 肩颈 -->
+  <path d="M42 54 C42 60 58 60 58 54 L58 62 L42 62Z" fill="${skin}"/>
+  <!-- 脑后棕发 -->
+  <ellipse cx="50" cy="33" rx="23" ry="21" fill="#a05a2c"/>
+  <!-- 两侧低圆发髻 + 缎带 -->
+  <g>
+    <circle cx="26" cy="50" r="8.5" fill="#8a4a22"/>
+    <circle cx="74" cy="50" r="8.5" fill="#8a4a22"/>
+    <path d="M20 52 Q26 56 32 52" stroke="#3e8e5a" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M68 52 Q74 56 80 52" stroke="#3e8e5a" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  </g>
+  <!-- 脸 -->
+  <ellipse cx="50" cy="42" rx="16.5" ry="17.5" fill="${skin}"/>
+  <!-- 中分刘海 -->
+  <path d="M33.5 46 C31 24 40 12 50 12 C60 12 69 24 66.5 46 C65 34 60 26 55 25 C57 29 57.5 33 56.5 36 C54 29 48 26 43.5 27.5 C38 29 34.5 36 33.5 46Z" fill="#a05a2c"/>
+  <!-- 雀斑 -->
+  <g fill="#c98a4e" opacity=".75">
+    <circle cx="38.5" cy="47.5" r="1"/><circle cx="41.5" cy="49" r="1"/>
+    <circle cx="58.5" cy="47.5" r="1"/><circle cx="55.5" cy="49" r="1"/>
+  </g>
+  <!-- 眉眼（棕眼睛） -->
+  <path d="M39 37 Q43 35 47 37" stroke="#6b3a17" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M53 37 Q57 35 61 37" stroke="#6b3a17" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="43" cy="43" rx="2.9" ry="3.4" fill="#5d3a1e"/>
+  <ellipse cx="57" cy="43" rx="2.9" ry="3.4" fill="#5d3a1e"/>
+  <circle cx="44" cy="41.6" r="1.1" fill="#fff"/>
+  <circle cx="58" cy="41.6" r="1.1" fill="#fff"/>
+  <!-- 腮红微笑 -->
+  <ellipse cx="38" cy="49" rx="3.6" ry="2.2" fill="#ff9aa2" opacity=".45"/>
+  <ellipse cx="62" cy="49" rx="3.6" ry="2.2" fill="#ff9aa2" opacity=".45"/>
+  <path d="M46 51.5 Q50 55.5 54 51.5" stroke="#b5544e" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+</svg>`;
+}
+
+/* ---- 女儿头像（自绘小女孩；juicy 长发+雪花夹，geimi 双马尾+小帽） ---- */
+function kidAvatarSVG(kid) {
+  const isJ = kid !== 'geimi';
+  const hair = isJ ? '#4e3220' : '#8a5230';
+  const hairD = isJ ? '#3a2417' : '#6f4023';
+  const coat = isJ ? '#f7a8c4' : '#ffd166';
+  const coatD = isJ ? '#e07fa5' : '#e8b23f';
+  const bg1 = isJ ? '#fff0f6' : '#fff8e6';
+  const bg2 = isJ ? '#ffc7de' : '#ffe6b0';
+  const eye = isJ ? '#4a2c18' : '#5a3520';
+  const skin = '#fde3c8';
+  const gid = isJ ? 'kbj' : 'kbg';
+
+  return `<svg class="av" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="${gid}" cx="50%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="${bg1}"/><stop offset="100%" stop-color="${bg2}"/>
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="50" r="49" fill="url(#${gid})"/>
+  <!-- 冬装 -->
+  <path d="M29 62 C21 74 17 88 16 100 L84 100 C83 88 79 74 71 62Z" fill="${coat}"/>
+  <path d="M32 60 C26 70 22 84 21 100 L79 100 C78 84 74 70 68 60Z" fill="${coatD}"/>
+  <!-- 白毛领 -->
+  <path d="M36 58 Q50 68 64 58 L62 67 Q50 75 38 67Z" fill="#fffaf3"/>
+  <!-- 肩颈 -->
+  <path d="M42 54 C42 60 58 60 58 54 L58 62 L42 62Z" fill="${skin}"/>
+  <!-- 后发 -->
+  <ellipse cx="50" cy="34" rx="23" ry="21" fill="${hair}"/>
+  ${isJ ? `
+  <path d="M28 46 C22 62 22 78 26 92 L37 90 C33 74 33 60 36 48Z" fill="${hairD}"/>
+  <path d="M72 46 C78 62 78 78 74 92 L63 90 C67 74 67 60 64 48Z" fill="${hairD}"/>` : `
+  <g>
+    <ellipse cx="24" cy="52" rx="8.5" ry="13" fill="${hairD}"/>
+    <ellipse cx="76" cy="52" rx="8.5" ry="13" fill="${hairD}"/>
+    <path d="M18 57 Q24 61 30 57" stroke="${coatD}" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <path d="M70 57 Q76 61 82 57" stroke="${coatD}" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  </g>`}
+  <!-- 脸 -->
+  <ellipse cx="50" cy="42" rx="16.5" ry="17.5" fill="${skin}"/>
+  <!-- 刘海 -->
+  <path d="M33.5 45 C31 24 40 12 50 12 C60 12 69 24 66.5 45 C64 33 60 26 55 25 C57 29 57.5 33 56.5 36 C54 29 48 26 43.5 27.5 C38 29 34.5 35 33.5 45Z" fill="${hair}"/>
+  ${isJ ? `
+  <!-- 雪花发夹 -->
+  <g transform="translate(67,27)" stroke="#7fd4ef" stroke-width="1.7" stroke-linecap="round">
+    <path d="M0 -5 V5 M-4.3 -2.5 L4.3 2.5 M4.3 -2.5 L-4.3 2.5"/>
+  </g>` : `
+  <!-- 小绒球帽 -->
+  <path d="M33 24 Q50 4 67 24 Q50 16 33 24Z" fill="${coatD}"/>
+  <circle cx="50" cy="7.5" r="5.5" fill="#fffaf3"/>`}
+  <!-- 眉眼 -->
+  <path d="M39 37 Q43 35 47 37" stroke="${hairD}" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M53 37 Q57 35 61 37" stroke="${hairD}" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="43" cy="43" rx="3" ry="3.5" fill="${eye}"/>
+  <ellipse cx="57" cy="43" rx="3" ry="3.5" fill="${eye}"/>
+  <circle cx="44" cy="41.6" r="1.1" fill="#fff"/>
+  <circle cx="58" cy="41.6" r="1.1" fill="#fff"/>
+  <!-- 腮红微笑 -->
+  <ellipse cx="38" cy="49" rx="3.6" ry="2.2" fill="#ff9aa2" opacity=".45"/>
+  <ellipse cx="62" cy="49" rx="3.6" ry="2.2" fill="#ff9aa2" opacity=".45"/>
+  <path d="M46 51.5 Q50 55.5 54 51.5" stroke="#b5544e" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+</svg>`;
+}
+
+// 飘雪
+function snowfall() {
+  const box = $('#snow');
+  if (!box || box.children.length) return;
+  const marks = ['❄', '❅', '❆', '✦'];
+  for (let i = 0; i < 22; i++) {
+    const s = document.createElement('span');
+    s.className = 'flake';
+    s.textContent = marks[i % marks.length];
+    s.style.left = (Math.random() * 100).toFixed(2) + '%';
+    s.style.fontSize = (9 + Math.random() * 14).toFixed(0) + 'px';
+    s.style.animationDuration = (9 + Math.random() * 11).toFixed(1) + 's';
+    s.style.animationDelay = (Math.random() * 12).toFixed(1) + 's';
+    s.style.opacity = (0.35 + Math.random() * 0.45).toFixed(2);
+    box.appendChild(s);
+  }
+}
 
 /* ---------- 小工具 ---------- */
 const $ = s => document.querySelector(s);
@@ -1117,6 +2084,7 @@ function confetti() {
     el.style.top = '-50px';
     layer.appendChild(el);
     const dur = 1700 + Math.random() * 1300;
+    if (!el.animate) { setTimeout(() => el.remove(), dur); continue; }
     const anim = el.animate([
       { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
       { transform: `translate(${(Math.random() * 160 - 80).toFixed(0)}px, 110vh) rotate(${(Math.random() * 720 - 360).toFixed(0)}deg)`, opacity: 0.85 }
@@ -1137,6 +2105,17 @@ function hideOverlay() {
   shutUp();
 }
 
+function chapterDone(k) {
+  const p = (prog[state.kid] && prog[state.kid].awarded) || {};
+  if (k === 'puzzle') return data.sentences.length > 0 && data.sentences.every((_, i) => p['puzzle_' + i]);
+  if (k === 'talk') return data.sentences.length > 0 && data.sentences.every((_, i) => p['talk_' + i]);
+  if (k === 'fill') return (data.sentences.every((_, i) => p['fill_s' + i]) || !data.sentences.length)
+    && data.words.length > 0 && data.words.every((_, i) => p['fill_w' + i]);
+  if (k === 'listen') return (data.sentences.every((_, i) => p['listen_s' + i]) || !data.sentences.length)
+    && data.words.length > 0 && data.words.every((_, i) => p['listen_w' + i]);
+  return false;
+}
+
 /* ---------- 星星 ---------- */
 function award(key) {
   const p = prog[state.kid] || (prog[state.kid] = { awarded: {} });
@@ -1144,6 +2123,12 @@ function award(key) {
   p.awarded[key] = true;
   saveProg();
   paintStars();
+  // 剧情推进：本章集齐 → 章节卡；四章全齐 → 终章
+  const k = key.split('_')[0];
+  if (STORY_ORDER.includes(k)) {
+    if (STORY_ORDER.every(chapterDone)) state.finalePending = true;
+    else if (chapterDone(k)) state.chapterJustDone = k;
+  }
   return true;
 }
 
@@ -1163,7 +2148,106 @@ function isDone(view) {
 }
 
 function weekCleared() {
-  return ['puzzle', 'fill', 'listen', 'talk'].every(isDone);
+  return STORY_ORDER.every(isDone);
+}
+
+/* ---------- 剧情章节：四个游戏连成一个冒险 ---------- */
+const STORY = {
+  puzzle: {
+    n: 1, ico: '🧊', shard: '💠', title: '句子被冻住了',
+    text: '一夜之间，寒气把城堡里的句子全冻成了冰块！艾莎说：只要把单词按正确的顺序排回去，句子就会解冻。',
+    short: '把冻住的句子拼回去'
+  },
+  spell: {
+    n: 2, ico: '📜', shard: '🖋️', title: '拼写冰殿',
+    text: '单词和代词被冻成了散落的字母！把它们一个一个拼回去——先排字母，再补字母，最后你自己打出来。',
+    short: '把单词和代词拼出来'
+  },
+  fill: {
+    n: 3, ico: '🪄', shard: '🗝️', title: '魔法词被风吹走了',
+    text: '句子解冻了，可每个句子里最关键的魔法词被风卷走了。把正确的词放回空格，魔法就会回来。',
+    short: '找回丢失的魔法词'
+  },
+  listen: {
+    n: 4, ico: '🗝️', shard: '🔶', title: '回声长廊',
+    text: '城堡深处的回声长廊里，藏着打开大门的声音。竖起耳朵——四个回声里只有一个是真的！',
+    short: '听出真正的回声'
+  },
+  talk: {
+    n: 5, ico: '🏰', shard: '🌸', title: '姐妹的演出',
+    text: '最后一关！和爱莎把今天的句子一句一句聊完，城堡的冰雪就会全部融化，春天就回来了！',
+    short: '和爱莎聊完这一场'
+  }
+};
+const STORY_ORDER = ['puzzle', 'spell', 'fill', 'listen', 'talk'];
+
+function chapterUnlocked(k) {
+  const i = STORY_ORDER.indexOf(k);
+  return i === 0 || isDone(STORY_ORDER[i - 1]);
+}
+
+// 游戏页顶部的章节横幅
+function chapterBanner(k) {
+  const st = STORY[k];
+  return `<div class="chapter-banner"><span class="cb-n">第${st.n}章</span> ${st.ico} ${st.title}
+    <span class="cb-tip">${st.short}</span></div>`;
+}
+
+// 通关一章时弹剧情推进卡片
+function chapterClear(k) {
+  const st = STORY[k];
+  const next = STORY_ORDER[STORY_ORDER.indexOf(k) + 1];
+  let body = `<div class="overlay-emoji">${st.shard}</div>
+    <h3 class="overlay-title">第${st.n}章 完成！拿到宝物 ${st.shard}</h3>`;
+  if (next) {
+    const nx = STORY[next];
+    body += `<p class="overlay-text">${STORY[k].title} —— 完成！<br>下一章：<b>${nx.ico} ${nx.title}</b></p>
+      <div class="ov-btns">
+        <button class="big-btn green" data-act="go-view" data-v="${next}">继续冒险 →</button>
+        <button class="big-btn ghost" data-act="ov-again" data-v="${k}">再玩一次</button>
+      </div>`;
+  } else {
+    body += `<p class="overlay-text">……寒气正在褪去，城堡亮起来了！</p>
+      <div class="ov-btns">
+        <button class="big-btn green" data-act="go-view" data-v="puzzle">回城堡看看 🏰</button>
+        <button class="big-btn ghost" data-act="ov-again" data-v="${k}">再聊一轮</button>
+      </div>`;
+  }
+  showOverlay(body);
+}
+
+// 全部通关的终章庆祝
+function finaleShow() {
+  sfx('win');
+  confetti();
+  setTimeout(confetti, 700);
+  showOverlay(`<div class="overlay-emoji">🏰✨</div>
+    <h3 class="overlay-title">终章 · 春天回来了！</h3>
+    <p class="overlay-text">四个宝物集齐，冰雪魔法解除了！<br>
+      爱莎：「谢谢你，${kidName()}！下周城堡会有新的冒险，别忘了来！」</p>
+    <button class="big-btn green" data-act="ov-close">好耶！</button>`, 0);
+}
+// 首页的故事地图：一条路串起四个章节
+function castleHTML() {
+  const shards = ['💠', '🖋️', '🗝️', '🔶', '🌸'];
+  let all = true;
+  const rows = STORY_ORDER.map((k, i) => {
+    const st = STORY[k];
+    const done = isDone(k);
+    const open = chapterUnlocked(k);
+    if (!done) all = false;
+    return `<div class="chapter ${done ? 'done' : open ? 'open' : 'lock'}">
+      <div class="ch-ico">${done ? shards[i] : open ? st.ico : '🔒'}</div>
+      <div class="ch-body">
+        <div class="ch-title">第${st.n}章 · ${st.title}${done ? ' ✅' : ''}</div>
+        <div class="ch-text">${done ? '宝物已收集：' + shards[i] : open ? st.text : '完成上一章后解锁'}</div>
+      </div>
+    </div>${i < STORY_ORDER.length - 1 ? '<div class="ch-path"></div>' : ''}`;
+  }).join('');
+  return `<div class="story-map">
+    <div class="story-head">${all ? '🏰 五章全部完成，春天回来了！' : '🏰 冰雪城堡大冒险 · 集齐 ' + STORY_ORDER.length + ' 个宝物解救城堡'}</div>
+    ${rows}
+  </div>`;
 }
 
 /* ---------- 顶部 ---------- */
@@ -1191,8 +2275,14 @@ function viewPuzzle() {
   const tail = /^[.,!?]$/.test(last) ? last : '';
 
   let html = '<div class="view-inner">';
-  html += `<h2 class="page-title">把单词排成句子</h2>`;
+  html += chapterBanner('puzzle');
+  html += `<h2 class="page-title">❄️ 把冻住的句子拼回来</h2>`;
   html += `<p class="page-hint">${esc(s.zh || '点下面的单词卡片，按顺序放进上面的方框')}</p>`;
+  if (levelOf() === 'hard') {
+    const wordsN = tail ? toks.length - 1 : toks.length;
+    const extraN = wordsN >= 4 ? 2 : 1;
+    html += `<p class="page-hint hard-tip">⚠️ 卡片比空格多，有 ${extraN} 张是用不上的</p>`;
+  }
   html += `<div class="slots-row" id="slots"></div>`;
   if (tail) {
     html += `<p class="page-hint" style="text-align:center;margin:-6px 0 14px">句尾的「${esc(tail)}」已经帮你放好啦</p>`;
@@ -1216,8 +2306,9 @@ function viewPuzzleList() {
       <span class="demo-cta">点这里把句型和单词换掉 →</span>
     </button>`;
   }
-  html += `<h2 class="page-title">选一句来拼</h2>`;
-  html += `<p class="page-hint">点一下要练的句子</p>`;
+  html += castleHTML();
+  html += `<h2 class="page-title">🧊 选一句被冻住的句子</h2>`;
+  html += `<p class="page-hint">句子碎成单词冰碴了，点进去把它拼回来</p>`;
   html += '<div class="sent-list">';
   data.sentences.forEach((s, i) => {
     const done = (prog[state.kid] || { awarded: {} }).awarded['puzzle_' + i];
@@ -1236,7 +2327,15 @@ function puzzleState() {
   const toks = tokenize(s.en);
   const tail = /[.,!?]/.test(toks[toks.length - 1]) ? toks[toks.length - 1] : '';
   const words = tail ? toks.slice(0, -1) : toks;
-  return { words, pieces: shuffle(words) };
+  let pieces;
+  if (levelOf() === 'hard') {
+    // 进阶：混入多余卡片，卡片数 > 空格数
+    const extra = words.length >= 4 ? 2 : 1;
+    pieces = shuffle(words.concat(decoys(words, extra)));
+  } else {
+    pieces = shuffle(words);
+  }
+  return { words, pieces };
 }
 
 // 运行时状态挂在 DOM 上
@@ -1295,7 +2394,9 @@ function pzCheck() {
     $$('.slot').forEach(el => el.classList.add('right'));
     const fresh = award('puzzle_' + state.puzzleIdx);
     speak(s.en, { rate: 0.8 });
-    showOverlay(`<div class="overlay-emoji">🎉</div>
+    if (state.finalePending) { state.finalePending = false; finaleShow(); }
+    else if (state.chapterJustDone === 'puzzle') { state.chapterJustDone = null; state.puzzleIdx = null; chapterClear('puzzle'); }
+    else showOverlay(`<div class="overlay-emoji">🎉</div>
       <h3 class="overlay-title">拼对啦！</h3>
       <p class="overlay-text">${esc(s.en)}<br><span style="color:#a0a0a0">${esc(s.zh || '')}</span></p>
       <button class="big-btn green" data-act="ov-closepuzzle">继续 →</button>`);
@@ -1337,39 +2438,53 @@ function pzHint() {
    视图：挖空填空
    ========================================================= */
 function buildFillQs() {
+  const hard = levelOf() === 'hard';
   const qs = [];
-  const allWords = data.words.map(w => w.en);
 
   data.sentences.forEach((s, si) => {
     const toks = tokenize(s.en);
-    const cands = toks.filter(t => /^[A-Za-z]/.test(t) && t.length > 2 && !STOP.has(t.toLowerCase()));
-    if (!cands.length) return;
-    const target = cands[Math.floor(Math.random() * cands.length)];
-    // 干扰项：本周其他单词
-    let pool = allWords.filter(w => w.toLowerCase() !== target.toLowerCase());
-    // 再从其他句型里捞实词
-    data.sentences.forEach((o, oi) => {
-      if (oi === si) return;
-      tokenize(o.en).forEach(t => {
-        if (/^[A-Za-z]/.test(t) && t.length > 2 && !STOP.has(t.toLowerCase()) && t.toLowerCase() !== target.toLowerCase()) pool.push(t);
-      });
+    const cand = [];
+    toks.forEach((t, i) => {
+      const bare = t.replace(/[.,!?]/g, '');
+      if (/^[A-Za-z]/.test(bare) && bare.length > 2 && !STOP.has(bare.toLowerCase()) && !/['']/.test(bare)) cand.push(i);
     });
-    pool = Array.from(new Set(pool));
-    const need = 3 - pool.length;
-    if (need > 0) pool = pool.concat(filler(need, pool.concat([target])));
-    const opts = shuffle([target].concat(shuffle(pool).slice(0, 3)));
-    qs.push({ kind: 'sentence', target, opts, sent: s, si });
+    if (!cand.length) return;
+    // 进阶：一句话挖两个空（句子里有 2 个以上实词时）
+    const take = (hard && cand.length >= 2) ? 2 : 1;
+    const idxs = shuffle(cand).slice(0, take).sort((a, b) => a - b);
+    const blanks = idxs.map(i => {
+      const ans = toks[i].replace(/[.,!?]/g, '');
+      return { at: i, answer: ans, opts: hard ? optsAround(ans, 4) : easyOpts(ans) };
+    });
+    qs.push({ kind: 'sentence', toks, blanks, filled: [], sent: s, si });
   });
 
   data.words.forEach((w, wi) => {
-    let pool = allWords.filter(x => x.toLowerCase() !== w.en.toLowerCase());
-    const need = 3 - pool.length;
-    if (need > 0) pool = pool.concat(filler(need, pool.concat([w.en])));
-    const opts = shuffle([w.en].concat(shuffle(pool).slice(0, 3)));
-    qs.push({ kind: 'word', target: w.en, opts, word: w, wi });
+    qs.push({ kind: 'word', target: w.en, opts: hard ? optsAround(w.en, 4) : easyOpts(w.en), word: w, wi });
   });
 
+  // 进阶专属题型：给中文，选正确的英文句子
+  if (hard) {
+    const withZh = data.sentences.filter(s => s.zh);
+    if (withZh.length >= 3) {
+      data.sentences.forEach((s, si) => {
+        if (!s.zh) return;
+        const pool = data.sentences.filter((o, i) => i !== si && o.en).map(o => o.en);
+        if (pool.length < 3) return;
+        qs.push({ kind: 'zh2en', sent: s, si, opts: shuffle([s.en].concat(shuffle(pool).slice(0, 3))) });
+      });
+    }
+  }
+
   return qs;
+}
+
+function fillBlankHTML(tok, i, q) {
+  const bi = q.blanks.findIndex(b => b.at === i);
+  if (bi < 0) return esc(tok);
+  const v = q.filled[bi];
+  const cur = q.filled.length === bi;
+  return `<span class="blank ${v ? 'filled' : ''} ${cur ? 'cur' : ''}" data-b="${bi}">${v ? esc(v) : '&nbsp;?&nbsp;'}</span>`;
 }
 
 function viewFill() {
@@ -1378,24 +2493,35 @@ function viewFill() {
   const q = state.fillQs[state.fillI];
   if (!q) { setTimeout(() => { state.fillQs = []; state.fillI = 0; render(); }, 0); return '<div class="view-inner"></div>'; }
 
-  let body = '';
+  let body = '', title = '选一个词填进去', opts = [], optClass = '';
+
   if (q.kind === 'sentence') {
-    const parts = q.sent.en.split(new RegExp(`\\b${q.target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'));
-    body = `<div class="fill-sentence">${esc(parts[0] || '')}<span class="blank">&nbsp;?&nbsp;</span>${esc(parts.slice(1).join(q.target) || '')}</div>
+    const parts = q.toks.map((t, i) => fillBlankHTML(t, i, q));
+    body = `<div class="fill-sentence">${parts.join(' ').replace(/\s+([.,!?])/g, '$1')}</div>
             <div class="fill-zh">${esc(q.sent.zh || '')}</div>`;
+    if (q.blanks.length > 1) title = `把两个空都填上（${Math.min(q.filled.length, q.blanks.length)}/${q.blanks.length}）`;
+    const cur = q.blanks[q.filled.length];
+    opts = cur ? cur.opts : [];
+  } else if (q.kind === 'zh2en') {
+    title = '这句话用英语怎么说？';
+    body = `<div class="fill-sentence zh-big">${esc(q.sent.zh)}</div>`;
+    opts = q.opts;
+    optClass = ' sent';
   } else {
-    body = `<div class="fill-sentence"><span class="blank">&nbsp;?&nbsp;</span></div>
+    body = `<div class="fill-sentence"><span class="blank cur">&nbsp;?&nbsp;</span></div>
             <div class="fill-zh">${esc(q.word.zh || '这个东西英文怎么说？')}</div>`;
+    opts = q.opts;
   }
 
   let html = '<div class="view-inner">';
-  html += `<h2 class="page-title">选一个词填进去</h2>`;
+  html += chapterBanner('fill');
+  html += `<h2 class="page-title">🕳️ ${title}</h2>`;
   html += `<p class="page-hint">第 ${state.fillI + 1} / ${state.fillQs.length} 题</p>`;
   html += body;
   html += '<div class="opt-grid" id="optGrid">';
-  q.opts.forEach(o => {
-    const ico = emoOf(o);
-    html += `<button class="opt-card" data-act="fill-pick" data-w="${esc(o)}">
+  opts.forEach(o => {
+    const ico = q.kind === 'zh2en' ? '' : emoOf(o);
+    html += `<button class="opt-card${optClass}" data-act="fill-pick" data-w="${esc(o)}">
       ${ico ? `<span class="ico">${ico}</span>` : ''}
       <span class="en">${esc(o)}</span>
     </button>`;
@@ -1407,20 +2533,39 @@ function viewFill() {
 function fillPick(btn) {
   const q = state.fillQs[state.fillI];
   const pick = btn.dataset.w;
-  if (pick.toLowerCase() === q.target.toLowerCase()) {
+
+  // 句子题：逐空填，当前空对了才进下一个
+  if (q.kind === 'sentence') {
+    const cur = q.blanks[q.filled.length];
+    if (!cur) return;
+    if (pick.toLowerCase() === cur.answer.toLowerCase()) {
+      q.filled.push(cur.answer);
+      sfx('right');
+      if (q.filled.length >= q.blanks.length) {
+        btn.classList.add('ok');
+        award('fill_s' + q.si);
+        speak(q.sent.en);
+        setTimeout(nextFill, 1100);
+      } else {
+        speak(cur.answer);
+        render();
+      }
+    } else {
+      btn.classList.add('no');
+      sfx('wrong');
+      setTimeout(() => btn.classList.remove('no'), 600);
+    }
+    return;
+  }
+
+  const target = q.kind === 'zh2en' ? q.sent.en : q.target;
+  if (pick.toLowerCase() === String(target).toLowerCase()) {
     btn.classList.add('ok');
     sfx('right');
-    const key = q.kind === 'sentence' ? 'fill_s' + q.si : 'fill_w' + q.wi;
+    const key = q.kind === 'zh2en' ? 'fill_z' + q.si : 'fill_w' + q.wi;
     award(key);
-    speak(q.kind === 'sentence' ? q.sent.en : q.target);
-    setTimeout(() => {
-      state.fillI++;
-      if (state.fillI >= state.fillQs.length) {
-        state.fillQs = [];
-        state.fillI = 0;
-        showFillFinish();
-      } else render();
-    }, 1100);
+    speak(target);
+    setTimeout(nextFill, 1100);
   } else {
     btn.classList.add('no');
     sfx('wrong');
@@ -1428,9 +2573,20 @@ function fillPick(btn) {
   }
 }
 
+function nextFill() {
+  state.fillI++;
+  if (state.fillI >= state.fillQs.length) {
+    state.fillQs = [];
+    state.fillI = 0;
+    showFillFinish();
+  } else render();
+}
+
 function showFillFinish() {
   sfx('win');
   confetti();
+  if (state.finalePending) { state.finalePending = false; return finaleShow(); }
+  if (state.chapterJustDone === 'fill') { state.chapterJustDone = null; return chapterClear('fill'); }
   showOverlay(`<div class="overlay-emoji">🏆</div>
     <h3 class="overlay-title">全部填完啦！</h3>
     <p class="overlay-text">这一轮的题目都做完了</p>
@@ -1438,24 +2594,292 @@ function showFillFinish() {
 }
 
 /* =========================================================
+   视图：拼写（名词 + 代词，三档递进：排字母 → 补字母 → 自己打）
+   设计原则：错不扣分、提示随时给，先让她愿意拼，再求拼对
+   ========================================================= */
+
+// 能拿來拼写的词：单个英文词（名词、代词都算）
+function spellWords() {
+  const out = [];
+  data.words.forEach((w, i) => {
+    if (/^[A-Za-z]{2,}$/.test(w.en.trim())) out.push({ en: w.en.trim(), zh: w.zh, wi: i });
+  });
+  return out;
+}
+
+const SPELL_ROUND = 10;
+
+function buildSpellQs() {
+  const hard = levelOf() === 'hard';
+  const ws = spellWords();
+  if (!ws.length) return [];
+  const p = prog[state.kid] || { awarded: {} };
+  const aw = p.awarded || {};
+  // 还不会的排前面；会了的也保留，混着练
+  const order = shuffle(ws.filter(x => !aw['spell_' + x.wi]))
+    .concat(shuffle(ws.filter(x => aw['spell_' + x.wi])));
+  const pick = order.slice(0, Math.min(SPELL_ROUND, order.length));
+  const n = pick.length;
+  const a = Math.max(1, Math.round(n * 0.3));
+  const b = Math.max(1, Math.round(n * 0.3));
+
+  return pick.map((x, k) => {
+    const q = { en: x.en, zh: x.zh, wi: x.wi, kind: 'type' };
+    q.kind = k < a ? 'tile' : (k < a + b ? 'gap' : 'type');
+    if (!hard && q.kind === 'type') q.kind = 'gap'; // 简单模式不做整词默写
+    const L = x.en.split('');
+
+    if (q.kind === 'tile') {
+      let idxs = L.map((_, i) => i);
+      if (!hard) idxs = idxs.slice(1);            // 简单模式首字母直接送
+      q.pieces = shuffle(idxs).map(i => ({ ch: L[i] }));
+      if (hard) {
+        const pool = spellWords().filter(o => o.wi !== x.wi).map(o => o.en).join('').split('');
+        const extra = shuffle(Array.from(new Set(pool))).slice(0, 2);
+        q.pieces = shuffle(q.pieces.concat(extra.map(ch => ({ ch, decoy: true }))));
+      }
+    }
+
+    if (q.kind === 'gap') {
+      const nGap = hard ? Math.min(2, Math.max(1, L.length - 1)) : 1;
+      const cand = hard ? L.map((_, i) => i) : L.map((_, i) => i).slice(1);
+      q.gaps = shuffle(cand).slice(0, nGap).sort((m, n2) => m - n2);
+      const right = Array.from(new Set(q.gaps.map(i => L[i])));
+      const opts = right.slice();
+      const alpha = 'abcdefghijklmnopqrstuvwxyz'.split('');
+      let guard = 0;
+      while (opts.length < 4 && guard++ < 60) {
+        const c = alpha[Math.floor(Math.random() * 26)];
+        if (!opts.includes(c)) opts.push(c);
+      }
+      q.opts = shuffle(opts);
+    }
+    return q;
+  });
+}
+
+function spResetBuf() {
+  const q = state.spellQs[state.spellI];
+  state.spellMsg = ''; state.spellBad = false; state.spellGapAt = 0;
+  if (!q) { state.spellBuf = []; return; }
+  const L = q.en.split('');
+  if (q.kind === 'tile') {
+    state.spellBuf = L.map(() => '');
+    if (levelOf() !== 'hard') state.spellBuf[0] = L[0];
+  } else if (q.kind === 'gap') {
+    state.spellBuf = L.slice();
+  } else {
+    state.spellBuf = [];
+  }
+}
+
+// tile 卡片哪些已被占用：按已填字母贪心反推，不用单独维护
+function spUsedFlags(q) {
+  const used = q.pieces.map(() => false);
+  state.spellBuf.forEach(c => {
+    if (!c) return;
+    const k = q.pieces.findIndex((p, pi) => !used[pi] && p.ch.toLowerCase() === c.toLowerCase());
+    if (k >= 0) used[k] = true;
+  });
+  return used;
+}
+
+function spSlotsHTML(q) {
+  const L = q.en.split('');
+  const hard = levelOf() === 'hard';
+  let html = '<div class="sp-slots">';
+  L.forEach((ch, i) => {
+    let shown = '', cls = '';
+    if (q.kind === 'tile') {
+      shown = state.spellBuf[i] || '';
+      if (i === 0 && !hard) cls = ' fixed';
+    } else if (q.kind === 'gap') {
+      const gi = q.gaps.indexOf(i);
+      if (gi < 0) { shown = ch; cls = ' fixed'; }
+      else if (gi < state.spellGapAt) { shown = ch; cls = ' ok'; }
+      else { shown = ''; if (gi === state.spellGapAt) cls = ' cur'; }
+    } else {
+      shown = state.spellBuf[i] || '';
+      if (i === state.spellBuf.length) cls = ' cur';
+    }
+    html += `<div class="sp-slot${cls}" data-act="${cls.includes('fixed') || cls.includes('ok') ? '' : 'sp-unslot'}" data-i="${i}">${esc(shown)}</div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+const KB_ROWS = [
+  ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'],
+  ['j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r'],
+  ['s', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+];
+
+function viewSpell() {
+  if (!data.words.length) return emptyView('✍️', '还没有单词', '去「录入」里把本周单词粘进去');
+  if (!state.spellQs.length) {
+    state.spellQs = buildSpellQs();
+    state.spellI = 0;
+    spResetBuf();
+    if (!state.spellQs.length) return emptyView('✍️', '没有可以拼写的单词', '单词要是单独的英文词才好拼');
+  }
+  const q = state.spellQs[state.spellI];
+  if (!q) return '<div class="view-inner"></div>';
+
+  const hard = levelOf() === 'hard';
+  const tip = q.kind === 'tile'
+    ? (hard ? '把字母卡按顺序点进去（混了多余的卡，要挑出来）' : '首字母已经给你啦，把剩下的字母按顺序点进去')
+    : q.kind === 'gap' ? '补上缺掉的那个字母' : '用下面的字母键盘，把这个词自己打出来';
+  const ico = emoOf(q.en);
+
+  let html = '<div class="view-inner">';
+  html += chapterBanner('spell');
+  html += `<h2 class="page-title">✍️ 把这个词拼出来</h2>`;
+  html += `<p class="page-hint">第 ${state.spellI + 1} / ${state.spellQs.length} 个 · ${tip}</p>`;
+  html += `<div class="sp-prompt">
+      ${ico ? `<span class="sp-ico">${ico}</span>` : ''}
+      <span class="sp-zh">${esc(q.zh || '听一听，写下来')}</span>
+      <button class="sp-speak" data-act="sp-speak">🔊 听</button>
+    </div>`;
+  html += `<div class="sp-stage${state.spellBad ? ' bad' : ''}">${spSlotsHTML(q)}</div>`;
+  html += `<div class="sp-msg ${state.spellBad ? 'bad' : ''}">${state.spellMsg ? esc(state.spellMsg) : '&nbsp;'}</div>`;
+
+  if (q.kind === 'tile') {
+    const used = spUsedFlags(q);
+    html += '<div class="sp-cards">';
+    q.pieces.forEach((p, i) => {
+      html += `<button class="sp-card${used[i] ? ' used' : ''}" data-act="sp-tile" data-p="${i}">${esc(p.ch)}</button>`;
+    });
+    html += '</div>';
+  } else if (q.kind === 'gap') {
+    html += '<div class="sp-cards">';
+    q.opts.forEach(c => {
+      html += `<button class="sp-card" data-act="sp-gap" data-c="${esc(c)}">${esc(c)}</button>`;
+    });
+    html += '</div>';
+  } else {
+    html += '<div class="sp-kb">';
+    KB_ROWS.forEach(row => {
+      html += '<div class="sp-kb-row">';
+      row.forEach(c => { html += `<button class="sp-key" data-act="sp-key" data-c="${c}">${c.toUpperCase()}</button>`; });
+      html += '</div>';
+    });
+    html += `<div class="sp-kb-row"><button class="sp-key wide" data-act="sp-back">⌫ 退一格</button></div>`;
+    html += '</div>';
+  }
+
+  html += `<div class="sp-bar">
+      <button class="big-btn ghost" data-act="sp-hint">💡 提示</button>
+      <button class="big-btn ghost" data-act="sp-reset">🔄 重来</button>
+      <button class="big-btn ghost" data-act="sp-skip">⏭️ 换一个</button>
+    </div>`;
+  html += '</div>';
+  return html;
+}
+
+function spFull() {
+  const q = state.spellQs[state.spellI];
+  if (q.kind === 'gap') return state.spellGapAt >= q.gaps.length;
+  return state.spellBuf.filter(Boolean).length >= q.en.length;
+}
+
+function spCheck() {
+  const q = state.spellQs[state.spellI];
+  if (!q) return;
+  let ok = false;
+  if (q.kind === 'gap') ok = state.spellGapAt >= q.gaps.length;
+  else ok = state.spellBuf.join('').toLowerCase() === q.en.toLowerCase();
+
+  if (ok) {
+    state.spellBad = false;
+    state.spellMsg = '对啦！';
+    sfx('right');
+    award('spell_' + q.wi);
+    speak(q.en);
+    render();
+    setTimeout(() => {
+      state.spellI++;
+      if (state.spellI >= state.spellQs.length) {
+        state.spellQs = []; state.spellI = 0;
+        showSpellFinish();
+      } else { spResetBuf(); render(); }
+    }, 950);
+  } else {
+    state.spellBad = true;
+    state.spellMsg = '还差一点点，再看一眼';
+    sfx('wrong');
+    render();
+    setTimeout(() => { state.spellBad = false; render(); }, 700);
+  }
+}
+
+// 提示：揭示下一个正确的字母（不限次数，不给压力）
+function spHint() {
+  const q = state.spellQs[state.spellI];
+  if (!q) return;
+  const L = q.en.split('');
+
+  if (q.kind === 'gap') {
+    const pos = q.gaps[state.spellGapAt];
+    if (pos == null) return;
+    state.spellBuf[pos] = L[pos];
+    state.spellGapAt++;
+    state.spellMsg = '这一个字母是 ' + L[pos];
+    sfx('tap');
+    render();
+    if (state.spellGapAt >= q.gaps.length) setTimeout(spCheck, 300);
+    return;
+  }
+
+  const lock = (q.kind === 'tile' && levelOf() !== 'hard') ? 1 : 0;
+  for (let i = lock; i < L.length; i++) {
+    if ((state.spellBuf[i] || '').toLowerCase() !== L[i].toLowerCase()) {
+      state.spellBuf[i] = L[i];
+      state.spellMsg = '第 ' + (i + 1) + ' 个字母是 ' + L[i];
+      sfx('tap');
+      render();
+      if (spFull()) setTimeout(spCheck, 300);
+      return;
+    }
+  }
+}
+
+function showSpellFinish() {
+  sfx('win');
+  confetti();
+  if (state.finalePending) { state.finalePending = false; return finaleShow(); }
+  if (state.chapterJustDone === 'spell') { state.chapterJustDone = null; return chapterClear('spell'); }
+  showOverlay(`<div class="overlay-emoji">✍️</div>
+    <h3 class="overlay-title">这一轮都拼完啦！</h3>
+    <p class="overlay-text">单词和代词都写了一遍，真棒</p>
+    <button class="big-btn green" data-act="ov-restart-spell">再来一轮 →</button>`);
+}
+
+/* =========================================================
    视图：听音选词
    ========================================================= */
 function buildListenQs() {
+  const hard = levelOf() === 'hard';
   const qs = [];
-  const allWords = data.words.map(w => w.en);
+
   data.words.forEach((w, wi) => {
-    let pool = allWords.filter(x => x.toLowerCase() !== w.en.toLowerCase());
-    const need = 3 - pool.length;
-    if (need > 0) pool = pool.concat(filler(need, pool.concat([w.en])));
-    const opts = shuffle([w.en].concat(shuffle(pool).slice(0, 3)));
-    qs.push({ kind: 'word', target: w.en, opts, zh: w.zh, wi });
+    qs.push({ kind: 'word', target: w.en, opts: hard ? optsAround(w.en, 4) : easyOpts(w.en), zh: w.zh, wi });
   });
+
   data.sentences.forEach((s, si) => {
-    const pool = data.sentences.filter((_, i) => i !== si).map(o => o.zh).filter(Boolean);
-    if (pool.length < 3) return;
-    const opts = shuffle([s.zh].concat(shuffle(pool).slice(0, 3)));
-    qs.push({ kind: 'sent', target: s.en, opts, zh: '', si });
+    if (hard) {
+      // 进阶：四句英文里选听到的那句，干扰句只差一两个词
+      let pool = shuffle(data.sentences.filter((o, i) => i !== si && o.en).map(o => o.en)).slice(0, 3);
+      if (pool.length < 3) pool = pool.concat(sentVariants(s, 3 - pool.length));
+      pool = Array.from(new Set(pool.filter(x => x.toLowerCase() !== s.en.toLowerCase())));
+      if (pool.length < 3) return;
+      qs.push({ kind: 'sent', target: s.en, opts: shuffle([s.en].concat(pool.slice(0, 3))), si });
+    } else {
+      const pool = data.sentences.filter((_, i) => i !== si).map(o => o.zh).filter(Boolean);
+      if (pool.length < 3) return;
+      qs.push({ kind: 'sent', target: s.en, opts: shuffle([s.zh].concat(shuffle(pool).slice(0, 3))), si, byZh: true });
+    }
   });
+
   return qs;
 }
 
@@ -1466,7 +2890,8 @@ function viewListen() {
   if (!q) { setTimeout(() => { state.listenQs = []; state.listenI = 0; render(); }, 0); return '<div class="view-inner"></div>'; }
 
   let html = '<div class="view-inner">';
-  html += `<h2 class="page-title">听一听，是哪个？</h2>`;
+  html += chapterBanner('listen');
+  html += `<h2 class="page-title">👂 听，城堡里传来什么？</h2>`;
   html += `<p class="page-hint">第 ${state.listenI + 1} / ${state.listenQs.length} 题</p>`;
   html += `<div class="listen-hero">
       <button class="play-btn" data-act="ls-play">🔊</button>
@@ -1476,7 +2901,8 @@ function viewListen() {
   html += '<div class="opt-grid" id="lsGrid">';
   q.opts.forEach(o => {
     const ico = q.kind === 'word' ? emoOf(o) : '';
-    html += `<button class="opt-card" data-act="ls-pick" data-w="${esc(o)}">
+    const cls = (q.kind === 'sent' && !q.byZh) ? ' sent' : '';
+    html += `<button class="opt-card${cls}" data-act="ls-pick" data-w="${esc(o)}">
       ${ico ? `<span class="ico">${ico}</span>` : ''}
       <span class="en">${esc(o)}</span>
     </button>`;
@@ -1494,10 +2920,10 @@ function listenPlay() {
 function listenPick(btn) {
   const q = state.listenQs[state.listenI];
   const pick = btn.dataset.w;
-  // 单词题：听到的英文；句型题：听到的整句对应的中文
-  const right = q.kind === 'word'
-    ? pick.toLowerCase() === q.target.toLowerCase()
-    : pick === data.sentences[q.si].zh;
+  // 简单模式句型题：听到的英文 → 选中文；进阶模式：四个英文句子里选
+  const right = q.byZh
+    ? pick === data.sentences[q.si].zh
+    : pick.toLowerCase() === q.target.toLowerCase();
 
   if (right) {
     btn.classList.add('ok');
@@ -1522,6 +2948,8 @@ function listenPick(btn) {
 function showListenFinish() {
   sfx('win');
   confetti();
+  if (state.finalePending) { state.finalePending = false; return finaleShow(); }
+  if (state.chapterJustDone === 'listen') { state.chapterJustDone = null; return chapterClear('listen'); }
   showOverlay(`<div class="overlay-emoji">🎧</div>
     <h3 class="overlay-title">耳朵真灵！</h3>
     <p class="overlay-text">这一轮听力都听出来了</p>
@@ -1531,29 +2959,79 @@ function showListenFinish() {
 /* =========================================================
    视图：语音对话 / 跟读
    ========================================================= */
+// 把本周句型编成「爱莎 ⇄ 女儿」的剧本：问句给爱莎，答句/陈述句给女儿
+function scriptLines() {
+  const lines = data.sentences.map(s => ({
+    who: /\?\s*$/.test(s.en) ? 'elsa' : 'kid',
+    en: s.en, zh: s.zh
+  }));
+  const allKid = lines.every(l => l.who === 'kid');
+  const allElsa = lines.every(l => l.who === 'elsa');
+  if (allKid || allElsa) lines.forEach((l, i) => { l.who = i % 2 ? 'elsa' : 'kid'; });
+  return lines;
+}
+
 function viewTalk() {
   if (!data.sentences.length) return emptyView('💬', '还没有句型', '去「设置」里把本周句型粘进去');
-  const list = data.sentences;
+
+  const list = scriptLines();          // 行数与 data.sentences 一一对应
   if (state.talkI >= list.length) return talkFinishView();
-  const s = list[state.talkI];
-  const talkIco = (s.en.split(/\s+/).map(emoOf).find(Boolean) || '');
+
+  const line = list[state.talkI];
+  const mine = line.who === 'kid';     // 这一句轮到女儿（就是玩家自己）说
 
   let html = '<div class="view-inner">';
-  html += `<h2 class="page-title">大声说出来</h2>`;
-  html += `<p class="page-hint">先听一遍，再跟着读出来</p>`;
-  html += `<div class="talk-stage">
-      <div class="talk-role">第 ${state.talkI + 1} / ${list.length} 句</div>
-      ${talkIco ? `<div class="talk-emoji">${talkIco}</div>` : ''}
-      <div class="talk-en">${esc(s.en)}</div>
-      <div class="talk-zh">${esc(s.zh || '')}</div>
-      <button class="mic-btn" data-act="tk-mic">🎤</button>
-      <div class="heard-text hidden" id="heard"></div>
+  html += chapterBanner('talk');
+  html += `<h2 class="page-title">${ROLES.elsa.name} 和 ${kidName()} 聊天</h2>`;
+  html += `<p class="page-hint">爱莎说一句，你接一句 —— 一句一句往下聊</p>`;
+
+  // 两个人的头像：爱莎 / 女儿（可换成孩子自己的照片）
+  html += `<div class="duo">
+    <div class="duo-who elsa">
+      ${avatarSVG('elsa')}
+      <div class="duo-nm">${ROLES.elsa.name}<span>冰雪女王</span></div>
+    </div>
+    <div class="duo-vs">💬</div>
+    <div class="duo-who kid">
+      ${avatarSVG('kid')}
+      <div class="duo-nm">${kidName()}<span>就是你</span></div>
+      <button class="mini-btn" data-act="tk-avatar">📷 换我的头像</button>
+    </div>
+  </div>`;
+
+  // 对话流：说过的留着当聊天记录，还没轮到的先藏起来
+  html += `<div class="chat">`;
+  list.forEach((l, i) => {
+    const isKid = l.who === 'kid';
+    const who = isKid ? 'kid' : 'elsa';
+    if (i > state.talkI) {
+      html += `<div class="msg ${who} future">
+        ${avatarSVG(who)}
+        <div class="bubble">◦ ◦ ◦</div>
+      </div>`;
+      return;
+    }
+    const now = i === state.talkI;
+    html += `<div class="msg ${who} ${now ? 'now' : 'past'}" ${now ? 'id="msgNow"' : `data-act="tk-jump" data-i="${i}"`}>
+      ${avatarSVG(who)}
+      <div class="bubble">
+        <div class="en">${esc(l.en)}</div>
+        ${now && l.zh ? `<div class="zh">${esc(l.zh)}</div>` : ''}
+        ${now ? `<div class="tip">${isKid ? '🎤 轮到你说了' : '🔊 听爱莎说'}</div>` : '<div class="tip replay">🔁 点一下再听</div>'}
+      </div>
     </div>`;
-  html += `<div class="talk-nav">
-      <button class="big-btn blue" data-act="tk-play">🔊 听一遍</button>
-      <button class="big-btn ${state.recording ? 'ghost' : 'green'}" data-act="tk-done">${state.recording ? '⏹ 说完了，下一句' : '✅ 读好了，下一句'}</button>
+  });
+  html += `</div>`;
+
+  html += `<div id="heard" class="heard-text hidden"></div>`;
+
+  html += `<div class="talk-nav" style="justify-content:center;display:flex;gap:12px;flex-wrap:wrap">
+      <button class="big-btn blue" data-act="tk-play">🔊 ${mine ? '听一遍' : '听爱莎说'}</button>
+      ${mine ? `<button class="big-btn pink" data-act="tk-mic">🎤 我来说</button>` : ''}
+      <button class="big-btn green" data-act="tk-done">${mine ? '✅ 我说好了 →' : '➡️ 下一句'}</button>
       <button class="big-btn ghost" data-act="tk-prev">← 上一句</button>
     </div>`;
+
   html += `<div class="progress-dots">`;
   list.forEach((_, i) => {
     const cls = i < state.talkI ? 'done' : (i === state.talkI ? 'on' : '');
@@ -1562,6 +3040,49 @@ function viewTalk() {
   html += `</div>`;
   html += `</div>`;
   return html;
+}
+
+/* 换女儿头像：从相册/相机选一张，压缩后存在本机（不上传任何服务器） */
+function pickAvatar() {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'image/*';
+  inp.onchange = () => {
+    const f = inp.files && inp.files[0];
+    if (!f) return;
+    const fr = new FileReader();
+    fr.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const size = 320;
+          const c = document.createElement('canvas');
+          c.width = size; c.height = size;
+          const g = c.getContext('2d');
+          // 居中裁成正方形
+          const s = Math.min(img.width, img.height);
+          const sx = (img.width - s) / 2, sy = (img.height - s) / 2;
+          g.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+          const url = c.toDataURL('image/jpeg', 0.72);
+          if (!data.settings.avatar) data.settings.avatar = {};
+          data.settings.avatar[state.kid] = url;
+          saveData();
+          sfx('right');
+          render();
+          showOverlay(`<div class="overlay-emoji">📷</div>
+            <h3 class="overlay-title">头像换好啦</h3>
+            <p class="overlay-text">${kidName()} 现在用自己的头像和爱莎聊天了<br><span style="font-size:14px;color:#8aa8c4">照片只存在这台设备上，不会上传</span></p>
+            <button class="big-btn green" data-act="ov-close">开始聊天 →</button>`);
+        } catch (e) {
+          showOverlay(`<div class="overlay-emoji">🙈</div><h3 class="overlay-title">这张图用不了</h3><p class="overlay-text">换一张试试</p><button class="big-btn" data-act="ov-close">知道了</button>`);
+        }
+      };
+      img.onerror = () => { sfx('wrong'); };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(f);
+  };
+  inp.click();
 }
 
 function talkFinishView() {
@@ -1672,11 +3193,13 @@ function talkDone() {
   if (state.talkI >= data.sentences.length) {
     sfx('win');
     confetti();
-    showOverlay(`<div class="overlay-emoji">🎤</div>
+    state.talkI = 0;
+    if (state.finalePending) { state.finalePending = false; finaleShow(); }
+    else if (state.chapterJustDone === 'talk') { state.chapterJustDone = null; chapterClear('talk'); }
+    else showOverlay(`<div class="overlay-emoji">🎤</div>
       <h3 class="overlay-title">全部读完啦！</h3>
       <p class="overlay-text">今天又说了 ${data.sentences.length} 句英语</p>
       <button class="big-btn green" data-act="tk-restart">再来一轮 →</button>`);
-    state.talkI = 0;
     render();
     return;
   }
@@ -1754,11 +3277,25 @@ function viewSetup() {
   </div>`;
 
   html += `<div class="setup-block">
+    <h3>难度（对 ${state.kid === 'juicy' ? 'juicy' : 'geimi'} 生效）</h3>
+    <p class="desc">两个孩子可以不一样，切换上面的名字即可分别设置</p>
+    <div class="row-btns">
+      <button class="small-btn ${levelOf() === 'easy' ? 'primary' : ''}" data-act="su-level" data-v="easy">🙂 简单</button>
+      <button class="small-btn ${levelOf() === 'hard' ? 'primary' : ''}" data-act="su-level" data-v="hard">🔥 进阶</button>
+    </div>
+    <div class="desc" style="margin-top:12px;line-height:1.8">
+      <b>简单</b>：卡片刚好、一句话一个空、听音选中文。<br>
+      <b>进阶</b>：拼句子混入多余卡片 · 长句挖两个空 · 听音从四个英文句子里选（只差一两个词）· 多一类「给中文选英文」。
+    </div>
+  </div>`;
+
+  html += `<div class="setup-block">
     <h3>备份与复用</h3>
     <p class="desc">下周换内容前，可以把这周导出存着</p>
     <div class="row-btns">
       <button class="small-btn" data-act="su-export">📤 导出本周</button>
       <button class="small-btn" data-act="su-import">📥 导入</button>
+      <button class="small-btn" data-act="su-week1">📘 用回第 1 周（课堂笔记）</button>
     </div>
   </div>`;
 
@@ -1812,10 +3349,14 @@ function demoData() {
    ========================================================= */
 function render() {
   const v = $('#view');
-  const map = { puzzle: viewPuzzle, fill: viewFill, listen: viewListen, talk: viewTalk, setup: viewSetup };
+  const map = { puzzle: viewPuzzle, spell: viewSpell, fill: viewFill, listen: viewListen, talk: viewTalk, setup: viewSetup };
   v.innerHTML = (map[state.view] || viewPuzzle)();
   v.scrollTop = 0;
   paintTop();
+  if (state.view === 'talk') {
+    const now = document.getElementById('msgNow');
+    if (now && now.scrollIntoView) { try { now.scrollIntoView({ block: 'center' }); } catch (e) {} }
+  }
   if (state.view === 'puzzle' && state.puzzleIdx !== null) initPuzzle();
 }
 
@@ -1824,6 +3365,9 @@ function switchView(name) {
   state.view = name;
   if (name === 'fill') { state.fillQs = []; state.fillI = 0; }
   if (name === 'listen') { state.listenQs = []; state.listenI = 0; }
+  if (name === 'spell') { state.spellQs = []; state.spellI = 0; spResetBuf(); }
+  if (name === 'talk') { state.talkI = 0; }
+  if (name !== 'puzzle') state.puzzleIdx = null;
   render();
 }
 
@@ -1841,6 +3385,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const b = e.target.closest('.kid-btn');
     if (!b) return;
     state.kid = b.dataset.kid;
+    // 两个孩子的难度可能不同，换人就把本轮题目重置（同样只在拼图页重画）
+    state.fillQs = []; state.fillI = 0;
+    state.listenQs = []; state.listenI = 0;
+    state.spellQs = []; state.spellI = 0; spResetBuf();
+    if (state.puzzleIdx !== null && state.view === 'puzzle') initPuzzle();
     sfx('tap');
     render();
   });
@@ -1858,6 +3407,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const act = el.dataset.act;
 
     if (act === 'go-setup') { switchView('setup'); return; }
+    if (act === 'go-view') {
+      const v = el.dataset.v;
+      if (STORY_ORDER.includes(v)) {
+        state.view = v;
+        if (v !== 'puzzle') state.puzzleIdx = null;
+        hideOverlay();
+        sfx('tap');
+        render();
+      }
+      return;
+    }
 
     // 拼句子
     if (act === 'pz-open') { state.puzzleIdx = +el.dataset.i; sfx('tap'); render(); return; }
@@ -1868,6 +3428,74 @@ document.addEventListener('DOMContentLoaded', () => {
     if (act === 'pz-reset') { initPuzzle(); return; }
     if (act === 'pz-back') { state.puzzleIdx = null; sfx('tap'); render(); return; }
 
+    // 拼写
+    if (act === 'sp-tile') {
+      const q = state.spellQs[state.spellI];
+      const p = +el.dataset.p;
+      const empty = state.spellBuf.findIndex(c => !c);
+      if (empty >= 0) {
+        state.spellBuf[empty] = q.pieces[p].ch;
+        sfx('tap');
+        render();
+        if (spFull()) setTimeout(spCheck, 260);
+      }
+      return;
+    }
+    if (act === 'sp-unslot') {
+      const i = +el.dataset.i;
+      state.spellBuf[i] = '';
+      sfx('tap');
+      render();
+      return;
+    }
+    if (act === 'sp-gap') {
+      const q = state.spellQs[state.spellI];
+      const pos = q.gaps[state.spellGapAt];
+      if (pos == null) return;
+      if (el.dataset.c.toLowerCase() === q.en[pos].toLowerCase()) {
+        state.spellBuf[pos] = q.en[pos];
+        state.spellGapAt++;
+        state.spellMsg = '';
+        sfx('right');
+        render();
+        if (state.spellGapAt >= q.gaps.length) setTimeout(spCheck, 300);
+      } else {
+        state.spellBad = true;
+        state.spellMsg = '这个字母不对，再想想';
+        sfx('wrong');
+        render();
+        setTimeout(() => { state.spellBad = false; render(); }, 700);
+      }
+      return;
+    }
+    if (act === 'sp-key') {
+      const q = state.spellQs[state.spellI];
+      if (state.spellBuf.length < q.en.length) {
+        state.spellBuf.push(el.dataset.c);
+        sfx('tap');
+        render();
+        if (spFull()) setTimeout(spCheck, 260);
+      }
+      return;
+    }
+    if (act === 'sp-back') {
+      state.spellBuf.pop();
+      sfx('tap');
+      render();
+      return;
+    }
+    if (act === 'sp-hint') { spHint(); return; }
+    if (act === 'sp-speak') { speak(state.spellQs[state.spellI].en); return; }
+    if (act === 'sp-reset') { spResetBuf(); sfx('tap'); render(); return; }
+    if (act === 'sp-skip') {
+      const q = state.spellQs.splice(state.spellI, 1)[0];
+      state.spellQs.push(q);
+      spResetBuf();
+      sfx('tap');
+      render();
+      return;
+    }
+
     // 填空
     if (act === 'fill-pick') { fillPick(el); return; }
 
@@ -1876,6 +3504,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (act === 'ls-pick') { listenPick(el); return; }
 
     // 对话
+    if (act === 'tk-role') {
+      data.settings.role = el.dataset.r;
+      saveData();
+      state.talkI = 0;
+      sfx('tap');
+      render();
+      return;
+    }
+    if (act === 'tk-avatar') { pickAvatar(); return; }
+    if (act === 'tk-jump') {
+      const i = +el.dataset.i;
+      if (!isNaN(i) && i < data.sentences.length) {
+        state.talkI = i;
+        sfx('tap');
+        render();
+        speak(data.sentences[i].en, { rate: 0.75 });
+      }
+      return;
+    }
     if (act === 'tk-mic') { talkMic(); return; }
     if (act === 'tk-play') { speak(data.sentences[state.talkI].en, { rate: 0.75 }); return; }
     if (act === 'tk-done') { talkDone(); return; }
@@ -1884,7 +3531,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 设置
     if (act === 'su-save') { saveSetup(); return; }
+    if (act === 'su-level') { setLevel(el.dataset.v); sfx('tap'); render(); return; }
     if (act === 'su-demo') { demoData(); sfx('right'); showOverlay(`<div class="overlay-emoji">🎁</div><h3 class="overlay-title">示例已填入</h3><p class="overlay-text">先拿示例玩一遍，熟了再换成孩子真正的课本内容</p><button class="big-btn" data-act="ov-close">知道了</button>`); return; }
+    if (act === 'su-week1') {
+      const w1 = week1Data();
+      data.week = w1.week; data.sentences = w1.sentences; data.words = w1.words; data.isDemo = false;
+      state.puzzleIdx = null; state.fillQs = []; state.fillI = 0; state.listenQs = []; state.listenI = 0; state.talkI = 0;
+      saveData(); sfx('right'); render();
+      showOverlay(`<div class="overlay-emoji">📘</div><h3 class="overlay-title">已换成第 1 周内容</h3>
+        <p class="overlay-text">9 个句型 · 12 个单词（来自课堂笔记 PDF）<br>以后每周发我 PDF，我整理好给你新的</p>
+        <button class="big-btn" data-act="ov-close">开始玩 →</button>`);
+      return;
+    }
     if (act === 'su-clear') {
       data.sentences = []; data.words = [];
       state.puzzleIdx = null; state.fillQs = []; state.fillI = 0; state.listenQs = []; state.listenI = 0; state.talkI = 0;
@@ -1919,10 +3577,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const act = el.dataset.act;
     hideOverlay();
     if (act === 'ov-closepuzzle') { state.puzzleIdx = null; render(); }
+    if (act === 'ov-again') { switchView(el.dataset.v); return; }
+    if (act === 'ov-restart-spell') { state.spellQs = []; state.spellI = 0; spResetBuf(); render(); }
     if (act === 'ov-restart-fill') { state.fillQs = []; state.fillI = 0; render(); }
     if (act === 'ov-restart-listen') { state.listenQs = []; state.listenI = 0; render(); }
   });
 
+  snowfall();
   render();
 });
 
