@@ -1420,6 +1420,15 @@ input.input:focus { outline: none; border-color: #74bdf0; }
   margin-top: 8px;
 }
 
+/* 拼对后自动跳下一句的小提示 */
+.auto-tip {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b7c8d8;
+  margin: 8px 0 0;
+}
+
 </style>
 </head>
 <body>
@@ -2102,6 +2111,7 @@ function showOverlay(html, ms) {
 
 function hideOverlay() {
   $('#overlay').classList.add('hidden');
+  if (pzAutoTimer) { clearTimeout(pzAutoTimer); pzAutoTimer = null; }
   shutUp();
 }
 
@@ -2340,6 +2350,7 @@ function puzzleState() {
 
 // 运行时状态挂在 DOM 上
 let pz = { words: [], pieces: [], used: {}, slots: [] };
+let pzAutoTimer = null;   // 拼对后自动跳下一句的定时器
 
 function initPuzzle() {
   const st = puzzleState();
@@ -2394,12 +2405,22 @@ function pzCheck() {
     $$('.slot').forEach(el => el.classList.add('right'));
     const fresh = award('puzzle_' + state.puzzleIdx);
     speak(s.en, { rate: 0.8 });
-    if (state.finalePending) { state.finalePending = false; finaleShow(); }
-    else if (state.chapterJustDone === 'puzzle') { state.chapterJustDone = null; state.puzzleIdx = null; chapterClear('puzzle'); }
-    else showOverlay(`<div class="overlay-emoji">🎉</div>
+    if (state.finalePending) { state.finalePending = false; finaleShow(); return; }
+    if (state.chapterJustDone === 'puzzle') { state.chapterJustDone = null; state.puzzleIdx = null; chapterClear('puzzle'); return; }
+
+    // 章节还没完：庆祝一下，自动去下一个没拼过的句子（不用回列表再点）
+    const next = nextPuzzleIdx(state.puzzleIdx);
+    if (next === null) { state.puzzleIdx = null; chapterClear('puzzle'); return; }
+    showOverlay(`<div class="overlay-emoji">🎉</div>
       <h3 class="overlay-title">拼对啦！</h3>
       <p class="overlay-text">${esc(s.en)}<br><span style="color:#a0a0a0">${esc(s.zh || '')}</span></p>
-      <button class="big-btn green" data-act="ov-closepuzzle">继续 →</button>`);
+      <div class="ov-btns">
+        <button class="big-btn green" data-act="pz-next" data-i="${next}">下一句 →</button>
+        <button class="big-btn ghost" data-act="ov-closepuzzle">留在这句</button>
+      </div>
+      <p class="auto-tip">马上自动去下一句…</p>`);
+    if (pzAutoTimer) clearTimeout(pzAutoTimer);
+    pzAutoTimer = setTimeout(() => { pzAutoTimer = null; goPuzzle(next); }, 2600);
   } else {
     sfx('wrong');
     $$('.slot').forEach(el => el.classList.add('wrong'));
@@ -2409,6 +2430,22 @@ function pzCheck() {
       paintPuzzle();
     }, 1200);
   }
+}
+
+// 下一个还没拼对的句子：先往后找，找不到就绕回开头找
+function nextPuzzleIdx(cur) {
+  const done = i => !!(prog[state.kid] || { awarded: {} }).awarded['puzzle_' + i];
+  for (let i = cur + 1; i < data.sentences.length; i++) if (!done(i)) return i;
+  for (let i = 0; i < cur; i++) if (!done(i)) return i;
+  return null;
+}
+
+function goPuzzle(i) {
+  if (pzAutoTimer) { clearTimeout(pzAutoTimer); pzAutoTimer = null; }
+  hideOverlay();
+  state.puzzleIdx = i;
+  sfx('tap');
+  render();
 }
 
 function pzPut(i) {
@@ -3576,7 +3613,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!el) return;
     const act = el.dataset.act;
     hideOverlay();
-    if (act === 'ov-closepuzzle') { state.puzzleIdx = null; render(); }
+    if (act === 'ov-closepuzzle') { render(); }
+    if (act === 'pz-next') { goPuzzle(+el.dataset.i); return; }
     if (act === 'ov-again') { switchView(el.dataset.v); return; }
     if (act === 'ov-restart-spell') { state.spellQs = []; state.spellI = 0; spResetBuf(); render(); }
     if (act === 'ov-restart-fill') { state.fillQs = []; state.fillI = 0; render(); }

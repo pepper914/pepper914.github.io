@@ -1408,3 +1408,12 @@ input.input:focus { outline: none; border-color: #74bdf0; }
   flex-wrap: wrap;
   margin-top: 8px;
 }
+
+/* 拼对后自动跳下一句的小提示 */
+.auto-tip {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b7c8d8;
+  margin: 8px 0 0;
+}
