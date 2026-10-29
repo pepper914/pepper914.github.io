@@ -2184,7 +2184,7 @@ const STORY = {
     short: '听出真正的回声'
   },
   talk: {
-    n: 5, ico: '🏰', shard: '🌸', title: '姐妹的演出',
+    n: 5, ico: '🏰', shard: '🌸', title: '你和爱莎的演出',
     text: '最后一关！和爱莎把今天的句子一句一句聊完，城堡的冰雪就会全部融化，春天就回来了！',
     short: '和爱莎聊完这一场'
   }
@@ -3054,7 +3054,7 @@ function viewTalk() {
       <div class="bubble">
         <div class="en">${esc(l.en)}</div>
         ${now && l.zh ? `<div class="zh">${esc(l.zh)}</div>` : ''}
-        ${now ? `<div class="tip">${isKid ? '🎤 轮到你说了' : '🔊 听爱莎说'}</div>` : '<div class="tip replay">🔁 点一下再听</div>'}
+        ${now ? `<div class="tip">${isKid ? '🎤 轮到你说了' : '🔊 先听爱莎说，再 🎤 跟着说'}</div>` : '<div class="tip replay">🔁 点一下再听</div>'}
       </div>
     </div>`;
   });
@@ -3064,7 +3064,7 @@ function viewTalk() {
 
   html += `<div class="talk-nav" style="justify-content:center;display:flex;gap:12px;flex-wrap:wrap">
       <button class="big-btn blue" data-act="tk-play">🔊 ${mine ? '听一遍' : '听爱莎说'}</button>
-      ${mine ? `<button class="big-btn pink" data-act="tk-mic">🎤 我来说</button>` : ''}
+      <button class="big-btn pink" data-act="tk-mic">${state.recording ? '⏹ 说完了' : `🎤 ${mine ? '我来说' : '跟着说'}`}</button>
       <button class="big-btn green" data-act="tk-done">${mine ? '✅ 我说好了 →' : '➡️ 下一句'}</button>
       <button class="big-btn ghost" data-act="tk-prev">← 上一句</button>
     </div>`;
@@ -3156,19 +3156,79 @@ function startRecog(cb) {
   } catch (e) { cb(null, 'error'); }
 }
 
+/* 录音跟读：录下孩子自己的声音，说完自动回放（不判分，保护积极性） */
+let talkRec = null, talkChunks = [], talkStream = null, talkRecUrl = null;
+
 function talkMic() {
   const s = data.sentences[state.talkI];
   const heard = $('#heard');
   if (!heard) return;
 
-  if (!data.settings.recog) {
-    // 跟读模式：点击 = 朗读 + 提示孩子跟着读
+  // 识别打分模式（录入页里手动打开）
+  if (data.settings.recog) { talkMicRecog(s, heard); return; }
+
+  // 正在录音 → 这次点击 = 停止并回放
+  if (state.recording) { try { talkRec && talkRec.stop(); } catch (e) {} return; }
+
+  // 设备不支持录音 → 退回"机器示范+跟读"
+  if (!navigator.mediaDevices || !window.MediaRecorder) {
     speak(s.en, { rate: 0.75 });
     heard.classList.remove('hidden', 'bad');
-    heard.textContent = '🔊 跟着读一遍吧';
+    heard.textContent = '🔊 先听一遍，然后你来说';
     return;
   }
 
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    talkStream = stream;
+    talkChunks = [];
+    talkRec = new MediaRecorder(stream);
+    talkRec.ondataavailable = e => { if (e.data && e.data.size) talkChunks.push(e.data); };
+    talkRec.onstop = () => {
+      try { talkStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+      const blob = new Blob(talkChunks, { type: talkRec.mimeType || 'audio/mp4' });
+      if (talkRecUrl) { try { URL.revokeObjectURL(talkRecUrl); } catch (e) {} }
+      talkRecUrl = URL.createObjectURL(blob);
+      state.recording = false;
+      render();
+      const el = $('#heard');
+      const silent = talkRecSilent;
+      talkRecSilent = false;
+      if (el && !silent) {
+        el.classList.remove('hidden', 'bad');
+        el.innerHTML = '✅ 录好啦！听听你自己的声音 <button class="mini-btn" data-act="tk-hear">🔊 再听一遍</button>';
+      }
+      if (!silent) {
+        const au = new Audio(talkRecUrl);
+        au.play().catch(() => {});
+        sfx('right');
+      }
+    };
+    talkRec.start();
+    state.recording = true;
+    render();
+    const el = $('#heard');
+    if (el) { el.classList.remove('hidden', 'bad'); el.textContent = '🎙️ 在听你说…说完再点一下 ⏹'; }
+  }).catch(() => {
+    // 没给麦克风权限：退回跟读
+    speak(s.en, { rate: 0.75 });
+    heard.classList.remove('hidden', 'bad');
+    heard.textContent = '🎤 录音没打开，先听我读，你大声跟着说';
+  });
+}
+
+/* 停止正在进行的录音/识别（切句、换人时用）——静默停止，不回放 */
+let talkRecSilent = false;
+function stopTalkRec() {
+  if (state.recording) {
+    state.recording = false;
+    talkRecSilent = true;
+    try { talkRec && talkRec.stop(); } catch (e) {}
+    try { recogObj && recogObj.stop(); } catch (e) {}
+  }
+}
+
+/* 识别打分模式的对话麦克风（原来那套逻辑） */
+function talkMicRecog(s, heard) {
   if (state.recording) {
     try { recogObj && recogObj.stop(); } catch (e) {}
     state.recording = false;
@@ -3217,10 +3277,7 @@ function talkMic() {
 
 function talkDone() {
   const s = data.sentences[state.talkI];
-  if (state.recording) {
-    try { recogObj && recogObj.stop(); } catch (e) {}
-    state.recording = false;
-  }
+  stopTalkRec();
   if (!data.settings.recog) {
     award('talk_' + state.talkI);   // 跟读模式：读完即记
   }
@@ -3290,7 +3347,7 @@ function viewSetup() {
     <div class="switch-row">
       <div>
         <div class="switch-label">跟读打分（语音识别）</div>
-        <div class="switch-desc">iPad 上不一定能用；用不了会自动退回跟读模式</div>
+        <div class="switch-desc">打开后能听写打分；不开就是录孩子的声音再放给她听（iPad 更稳）</div>
       </div>
       <button class="toggle ${data.settings.recog ? 'on' : ''}" data-act="su-recog"><span class="knob"></span></button>
     </div>
@@ -3553,6 +3610,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (act === 'tk-jump') {
       const i = +el.dataset.i;
       if (!isNaN(i) && i < data.sentences.length) {
+        stopTalkRec();
         state.talkI = i;
         sfx('tap');
         render();
@@ -3561,10 +3619,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     if (act === 'tk-mic') { talkMic(); return; }
+    if (act === 'tk-hear') { if (talkRecUrl) { const au = new Audio(talkRecUrl); au.play().catch(() => {}); } return; }
     if (act === 'tk-play') { speak(data.sentences[state.talkI].en, { rate: 0.75 }); return; }
     if (act === 'tk-done') { talkDone(); return; }
-    if (act === 'tk-prev') { state.talkI = Math.max(0, state.talkI - 1); sfx('tap'); render(); return; }
-    if (act === 'tk-restart') { state.talkI = 0; hideOverlay(); sfx('tap'); render(); return; }
+    if (act === 'tk-prev') { stopTalkRec(); state.talkI = Math.max(0, state.talkI - 1); sfx('tap'); render(); return; }
+    if (act === 'tk-restart') { stopTalkRec(); state.talkI = 0; hideOverlay(); sfx('tap'); render(); return; }
 
     // 设置
     if (act === 'su-save') { saveSetup(); return; }
