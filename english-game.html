@@ -6,8 +6,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="英语游戏">
-<meta name="theme-color" content="#fff8ee">
+<meta name="theme-color" content="#3f9fd6">
 <title>英语冰雪岛 · Elsa & Anna</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
 <style>
 /* ===== 基础 ===== */
 * {
@@ -1429,6 +1432,91 @@ input.input:focus { outline: none; border-color: #74bdf0; }
   margin: 8px 0 0;
 }
 
+/* 故事地图收起态：一条细横条 */
+.story-mini {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  background: linear-gradient(135deg, #eaf6ff, #f5fbff);
+  border: 2px solid #cfe8fa;
+  border-radius: 16px;
+  padding: 10px 14px;
+  margin: 0 0 14px;
+  cursor: pointer;
+}
+.story-mini:active { transform: scale(0.98); }
+.story-mini .sm-ico { font-size: 22px; }
+.story-mini .sm-title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1f6fa8;
+}
+.story-mini .sm-shards { font-size: 15px; letter-spacing: 2px; }
+.story-mini .sm-arrow {
+  font-size: 13px;
+  font-weight: 800;
+  color: #7fb4d6;
+}
+.story-map { position: relative; }
+.story-map.open { margin-top: 6px; }
+.story-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  color: #7fb4d6;
+  background: #f2f9ff;
+  border: 1.5px solid #d8ecfb;
+  border-radius: 999px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+button.chapter {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+button.chapter.open:active { transform: scale(0.98); }
+
+/* 添加到主屏幕提示条 */
+.pwa-hint {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  z-index: 60;
+  background: #22405c;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 12px 42px 12px 16px;
+  border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(20, 60, 90, 0.35);
+}
+.pwa-hint b { color: #9fdcff; }
+.pwa-x {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9db8cc;
+  font-size: 16px;
+  padding: 8px;
+  cursor: pointer;
+}
+
 </style>
 </head>
 <body>
@@ -1630,7 +1718,8 @@ const state = {
   listenQs: [], listenI: 0,
   spellQs: [], spellI: 0, spellBuf: [], spellUsed: [], spellGapAt: 0, spellMsg: '', spellBad: false,
   talkI: 0,
-  recording: false
+  recording: false,
+  mapOpen: false
 };
 
 /* ---------- 难度档位（按孩子分别记） ---------- */
@@ -2237,25 +2326,38 @@ function finaleShow() {
       爱莎：「谢谢你，${kidName()}！下周城堡会有新的冒险，别忘了来！」</p>
     <button class="big-btn green" data-act="ov-close">好耶！</button>`, 0);
 }
-// 首页的故事地图：一条路串起四个章节
+// 首页的故事地图：默认收成一条细横条，点开才展开（句子顶到上面）
 function castleHTML() {
   const shards = ['💠', '🖋️', '🗝️', '🔶', '🌸'];
   let all = true;
+  let got = 0;
   const rows = STORY_ORDER.map((k, i) => {
     const st = STORY[k];
     const done = isDone(k);
     const open = chapterUnlocked(k);
-    if (!done) all = false;
-    return `<div class="chapter ${done ? 'done' : open ? 'open' : 'lock'}">
+    if (!done) all = false; else got++;
+    const clickable = open ? ` data-act="go-view" data-v="${k}"` : '';
+    return `<${open ? 'button' : 'div'} class="chapter ${done ? 'done' : open ? 'open' : 'lock'}"${clickable}>
       <div class="ch-ico">${done ? shards[i] : open ? st.ico : '🔒'}</div>
       <div class="ch-body">
         <div class="ch-title">第${st.n}章 · ${st.title}${done ? ' ✅' : ''}</div>
-        <div class="ch-text">${done ? '宝物已收集：' + shards[i] : open ? st.text : '完成上一章后解锁'}</div>
+        <div class="ch-text">${done ? '宝物已收集：' + shards[i] + ' · 点进去再玩' : open ? st.text : '完成上一章后解锁'}</div>
       </div>
-    </div>${i < STORY_ORDER.length - 1 ? '<div class="ch-path"></div>' : ''}`;
+    </${open ? 'button' : 'div'}>${i < STORY_ORDER.length - 1 ? '<div class="ch-path"></div>' : ''}`;
   }).join('');
-  return `<div class="story-map">
-    <div class="story-head">${all ? '🏰 五章全部完成，春天回来了！' : '🏰 冰雪城堡大冒险 · 集齐 ' + STORY_ORDER.length + ' 个宝物解救城堡'}</div>
+  if (!state.mapOpen) {
+    const cur = STORY_ORDER.find(k => !isDone(k)) || STORY_ORDER[0];
+    const cst = STORY[cur];
+    return `<button class="story-mini" data-act="map-toggle">
+      <span class="sm-ico">🏰</span>
+      <span class="sm-title">第${cst.n}章 · ${cst.title}${all ? ' · 全部完成！' : ''}</span>
+      <span class="sm-shards">${STORY_ORDER.map((k, i) => isDone(k) ? shards[i] : '·').join('')}</span>
+      <span class="sm-arrow">地图 ▾</span>
+    </button>`;
+  }
+  return `<div class="story-map open">
+    <button class="story-close" data-act="map-toggle">收起地图 ▴</button>
+    <div class="story-head">${all ? '🏰 五章全部完成，春天回来了！' : '🏰 冰雪城堡大冒险 · 宝物 ' + got + '/' + STORY_ORDER.length}</div>
     ${rows}
   </div>`;
 }
@@ -3501,6 +3603,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const act = el.dataset.act;
 
     if (act === 'go-setup') { switchView('setup'); return; }
+    if (act === 'map-toggle') { state.mapOpen = !state.mapOpen; sfx('tap'); render(); return; }
     if (act === 'go-view') {
       const v = el.dataset.v;
       if (STORY_ORDER.includes(v)) {
@@ -3763,6 +3866,33 @@ function importData() {
   }
 })();
 
+/* ---------- iOS「添加到主屏幕」提示（一次性，可关） ---------- */
+(function pwaHint() {
+  const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPadOS 13+ 伪装成 Mac
+  const inStandalone = window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches;
+  if (!iOS || inStandalone) return;
+  if (localStorage.getItem('pwa_hint_dismissed')) return;
+  const bar = document.createElement('div');
+  bar.className = 'pwa-hint';
+  bar.innerHTML = '📲 想像 App 一样打开？点 Safari 底部的 <b>分享</b> → <b>添加到主屏幕</b>' +
+    '<button class="pwa-x" aria-label="关闭">✕</button>';
+  document.body.appendChild(bar);
+  bar.querySelector('.pwa-x').addEventListener('click', () => {
+    bar.remove();
+    localStorage.setItem('pwa_hint_dismissed', '1');
+  });
+})();
+
+</script>
+<script>
+/* PWA：注册离线缓存（https 下生效；本地 file 打开时静默跳过） */
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
 </script>
 </body>
 </html>

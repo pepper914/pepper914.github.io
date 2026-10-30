@@ -151,7 +151,8 @@ const state = {
   listenQs: [], listenI: 0,
   spellQs: [], spellI: 0, spellBuf: [], spellUsed: [], spellGapAt: 0, spellMsg: '', spellBad: false,
   talkI: 0,
-  recording: false
+  recording: false,
+  mapOpen: false
 };
 
 /* ---------- 难度档位（按孩子分别记） ---------- */
@@ -758,25 +759,38 @@ function finaleShow() {
       爱莎：「谢谢你，${kidName()}！下周城堡会有新的冒险，别忘了来！」</p>
     <button class="big-btn green" data-act="ov-close">好耶！</button>`, 0);
 }
-// 首页的故事地图：一条路串起四个章节
+// 首页的故事地图：默认收成一条细横条，点开才展开（句子顶到上面）
 function castleHTML() {
   const shards = ['💠', '🖋️', '🗝️', '🔶', '🌸'];
   let all = true;
+  let got = 0;
   const rows = STORY_ORDER.map((k, i) => {
     const st = STORY[k];
     const done = isDone(k);
     const open = chapterUnlocked(k);
-    if (!done) all = false;
-    return `<div class="chapter ${done ? 'done' : open ? 'open' : 'lock'}">
+    if (!done) all = false; else got++;
+    const clickable = open ? ` data-act="go-view" data-v="${k}"` : '';
+    return `<${open ? 'button' : 'div'} class="chapter ${done ? 'done' : open ? 'open' : 'lock'}"${clickable}>
       <div class="ch-ico">${done ? shards[i] : open ? st.ico : '🔒'}</div>
       <div class="ch-body">
         <div class="ch-title">第${st.n}章 · ${st.title}${done ? ' ✅' : ''}</div>
-        <div class="ch-text">${done ? '宝物已收集：' + shards[i] : open ? st.text : '完成上一章后解锁'}</div>
+        <div class="ch-text">${done ? '宝物已收集：' + shards[i] + ' · 点进去再玩' : open ? st.text : '完成上一章后解锁'}</div>
       </div>
-    </div>${i < STORY_ORDER.length - 1 ? '<div class="ch-path"></div>' : ''}`;
+    </${open ? 'button' : 'div'}>${i < STORY_ORDER.length - 1 ? '<div class="ch-path"></div>' : ''}`;
   }).join('');
-  return `<div class="story-map">
-    <div class="story-head">${all ? '🏰 五章全部完成，春天回来了！' : '🏰 冰雪城堡大冒险 · 集齐 ' + STORY_ORDER.length + ' 个宝物解救城堡'}</div>
+  if (!state.mapOpen) {
+    const cur = STORY_ORDER.find(k => !isDone(k)) || STORY_ORDER[0];
+    const cst = STORY[cur];
+    return `<button class="story-mini" data-act="map-toggle">
+      <span class="sm-ico">🏰</span>
+      <span class="sm-title">第${cst.n}章 · ${cst.title}${all ? ' · 全部完成！' : ''}</span>
+      <span class="sm-shards">${STORY_ORDER.map((k, i) => isDone(k) ? shards[i] : '·').join('')}</span>
+      <span class="sm-arrow">地图 ▾</span>
+    </button>`;
+  }
+  return `<div class="story-map open">
+    <button class="story-close" data-act="map-toggle">收起地图 ▴</button>
+    <div class="story-head">${all ? '🏰 五章全部完成，春天回来了！' : '🏰 冰雪城堡大冒险 · 宝物 ' + got + '/' + STORY_ORDER.length}</div>
     ${rows}
   </div>`;
 }
@@ -2022,6 +2036,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const act = el.dataset.act;
 
     if (act === 'go-setup') { switchView('setup'); return; }
+    if (act === 'map-toggle') { state.mapOpen = !state.mapOpen; sfx('tap'); render(); return; }
     if (act === 'go-view') {
       const v = el.dataset.v;
       if (STORY_ORDER.includes(v)) {
@@ -2282,4 +2297,23 @@ function importData() {
   if (!data.sentences.length && !data.words.length) {
     demoData();
   }
+})();
+
+/* ---------- iOS「添加到主屏幕」提示（一次性，可关） ---------- */
+(function pwaHint() {
+  const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPadOS 13+ 伪装成 Mac
+  const inStandalone = window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches;
+  if (!iOS || inStandalone) return;
+  if (localStorage.getItem('pwa_hint_dismissed')) return;
+  const bar = document.createElement('div');
+  bar.className = 'pwa-hint';
+  bar.innerHTML = '📲 想像 App 一样打开？点 Safari 底部的 <b>分享</b> → <b>添加到主屏幕</b>' +
+    '<button class="pwa-x" aria-label="关闭">✕</button>';
+  document.body.appendChild(bar);
+  bar.querySelector('.pwa-x').addEventListener('click', () => {
+    bar.remove();
+    localStorage.setItem('pwa_hint_dismissed', '1');
+  });
 })();

@@ -6,8 +6,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="英语游戏">
-<meta name="theme-color" content="#fff8ee">
+<meta name="theme-color" content="#3f9fd6">
 <title>英语冰雪岛 · Elsa & Anna</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -56,5 +59,13 @@
 <div id="confetti" class="confetti-layer"></div>
 
 <script src="app.js"></script>
+<script>
+/* PWA：注册离线缓存（https 下生效；本地 file 打开时静默跳过） */
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
 </body>
 </html>

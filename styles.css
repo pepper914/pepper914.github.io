@@ -1417,3 +1417,88 @@ input.input:focus { outline: none; border-color: #74bdf0; }
   color: #b7c8d8;
   margin: 8px 0 0;
 }
+
+/* 故事地图收起态：一条细横条 */
+.story-mini {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  background: linear-gradient(135deg, #eaf6ff, #f5fbff);
+  border: 2px solid #cfe8fa;
+  border-radius: 16px;
+  padding: 10px 14px;
+  margin: 0 0 14px;
+  cursor: pointer;
+}
+.story-mini:active { transform: scale(0.98); }
+.story-mini .sm-ico { font-size: 22px; }
+.story-mini .sm-title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1f6fa8;
+}
+.story-mini .sm-shards { font-size: 15px; letter-spacing: 2px; }
+.story-mini .sm-arrow {
+  font-size: 13px;
+  font-weight: 800;
+  color: #7fb4d6;
+}
+.story-map { position: relative; }
+.story-map.open { margin-top: 6px; }
+.story-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  color: #7fb4d6;
+  background: #f2f9ff;
+  border: 1.5px solid #d8ecfb;
+  border-radius: 999px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+button.chapter {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+button.chapter.open:active { transform: scale(0.98); }
+
+/* 添加到主屏幕提示条 */
+.pwa-hint {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  z-index: 60;
+  background: #22405c;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 12px 42px 12px 16px;
+  border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(20, 60, 90, 0.35);
+}
+.pwa-hint b { color: #9fdcff; }
+.pwa-x {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9db8cc;
+  font-size: 16px;
+  padding: 8px;
+  cursor: pointer;
+}
