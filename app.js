@@ -101,7 +101,9 @@ function week1Data() {
   ];
   return {
     week: '第 1 周 · School things',
-    sentences: RAW_S.map(splitSent).filter(x => x && x.en),
+    // 默认句库 = 本周句型 + 220 高频词句子包（SENTENCES220 在 sentences220.js）
+    // typeof 防御：脚本没加载成功时也不至于把整个默认数据搞崩
+    sentences: RAW_S.concat(typeof SENTENCES220 !== 'undefined' ? SENTENCES220 : []).map(splitSent).filter(x => x && x.en),
     words: RAW_W.map(splitWord).filter(x => x && x.en),
     isDemo: false,
     settings: { recog: false, rate: 0.85, role: 'anna' }
@@ -2285,6 +2287,11 @@ function render() {
   v.innerHTML = (map[state.view] || viewPuzzle)();
   v.scrollTop = 0;
   paintTop();
+  if (state.view === 'spell') {
+    // 拼写页内容高（键盘/卡片/按钮），自动滚到底保证底部按钮看得见
+    const bar = document.querySelector('.sp-bar');
+    if (bar && bar.scrollIntoView) setTimeout(() => { try { bar.scrollIntoView({ block: 'nearest' }); } catch (e) {} }, 30);
+  }
   if (state.view === 'talk') {
     const now = document.getElementById('msgNow');
     if (now && now.scrollIntoView) { try { now.scrollIntoView({ block: 'center' }); } catch (e) {} }

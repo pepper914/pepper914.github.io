@@ -1718,6 +1718,36 @@ body[data-view="talk"]   .chapter-banner { background: linear-gradient(90deg, #f
   .tabbar .tab-txt { font-size: 13px; }
 }
 
+/* ============ 拼写页紧凑化：保证 键盘+按钮 一屏放得下（iPad 竖屏不滚动） ============ */
+body[data-view="spell"] .view { padding: 10px 14px 12px; }
+body[data-view="spell"] .chapter-banner { margin-bottom: 8px; padding: 8px 12px; }
+body[data-view="spell"] .page-title { margin: 4px 0 2px; font-size: 20px; }
+body[data-view="spell"] .page-hint { margin: 0 0 6px; font-size: 13px; }
+body[data-view="spell"] .sp-prompt { margin: 2px 0 4px; }
+body[data-view="spell"] .sp-ico { font-size: 32px; }
+body[data-view="spell"] .sp-zh { font-size: 26px; }
+body[data-view="spell"] .sp-speak { padding: 6px 12px; font-size: 14px; }
+body[data-view="spell"] .sp-stage { padding: 4px 0; }
+body[data-view="spell"] .sp-slot {
+  min-width: 42px; height: 54px; font-size: 30px;
+  border-width: 3px; border-radius: 12px;
+}
+body[data-view="spell"] .sp-msg { min-height: 20px; font-size: 15px; margin: 4px 0 2px; }
+body[data-view="spell"] .sp-cards { gap: 8px; margin: 8px 0 4px; }
+body[data-view="spell"] .sp-card {
+  min-width: 46px; height: 54px; font-size: 26px;
+  border-width: 3px; border-radius: 13px; box-shadow: 0 3px 0 #cfe6ff;
+}
+body[data-view="spell"] .sp-kb { margin: 8px 0 4px; }
+body[data-view="spell"] .sp-kb-row { gap: 6px; margin-bottom: 6px; }
+body[data-view="spell"] .sp-key {
+  min-width: 44px; height: 48px; font-size: 20px;
+  border-width: 2px; border-radius: 10px; box-shadow: 0 2px 0 #cfe6ff;
+}
+body[data-view="spell"] .sp-key.wide { min-width: 132px; font-size: 17px; }
+body[data-view="spell"] .sp-bar { margin-top: 8px; gap: 10px; }
+body[data-view="spell"] .sp-bar .big-btn { padding: 10px 16px; font-size: 15px; }
+
 </style>
 </head>
 <body>
@@ -2029,6 +2059,175 @@ if (typeof window !== 'undefined') {
 
 </script>
 <script>
+/* 220 高频词句子包 —— 把高频词放进短句里练
+   格式与录入一致："英文 | 中文"
+   这些句子会追加在默认句库后面（拼句子章节里），每个句子都用到 220 词表里的词 */
+const SENTENCES220 = [
+  /* --- 启蒙林 --- */
+  'I see a big red ball. | 我看见一个红色的大球。',
+  'Look at the funny cat. | 看那只滑稽的猫。',
+  'I can jump up high. | 我能跳得很高。',
+  'Come here and help me. | 过来帮帮我。',
+  'We go down the slide. | 我们从滑梯上滑下来。',
+  'It is in my bag. | 它在我的包里。',
+  'I have two blue pens. | 我有两支蓝色的钢笔。',
+  'Where is my yellow hat? | 我的黄帽子在哪儿？',
+  'The dog can run fast. | 狗跑得快。',
+  'Not now, play with me! | 不是现在，跟我玩！',
+  'I said hello to my mom. | 我跟妈妈说了你好。',
+  'One, two, three, go! | 一、二、三，开始！',
+  'Can you find the little bird? | 你能找到那只小鸟吗？',
+  'I make a cake for you. | 我给你做了一个蛋糕。',
+  'The cat ran away. | 猫跑掉了。',
+  /* --- 小河村 --- */
+  'I am seven years old. | 我七岁。',
+  'They are my good friends. | 他们是我的好朋友。',
+  'I like to eat apples. | 我喜欢吃苹果。',
+  'The black cat is on the bed. | 黑猫在床上。',
+  'He came to see me. | 他来看我了。',
+  'I ate four cookies. | 我吃了四块饼干。',
+  'Please give me the book. | 请把书给我。',
+  'That dog is so good! | 那只狗真乖！',
+  'What do you want? | 你想要什么？',
+  'Who is under the tree? | 谁在树底下？',
+  'I have a new dress. | 我有一条新裙子。',
+  'No, thank you. | 不了，谢谢你。',
+  'We went out to play. | 我们出去玩。',
+  'There is a brown dog. | 那儿有一只棕色的狗。',
+  'I saw a white rabbit. | 我看见一只白兔子。',
+  'This is my dad. | 这是我爸爸。',
+  'She will ride the bike. | 她要骑自行车。',
+  'Say it again, please. | 请再说一遍。',
+  'I must do my homework. | 我必须做作业。',
+  'Get the ball for me. | 帮我把球拿来。',
+  'It is too hot today. | 今天太热了。',
+  'Yes, I can do it! | 是的，我能做到！',
+  'Soon it will be my birthday. | 很快就是我的生日了。',
+  'All my friends came. | 我所有的朋友都来了。',
+  'He jumped into the water. | 他跳进了水里。',
+  'But I want to play! | 可是我想玩！',
+  'I play with my sister. | 我和我妹妹一起玩。',
+  'Our family is big. | 我们家人口多。',
+  /* --- 青草坡 --- */
+  'Birds can fly in the sky. | 鸟能在天上飞。',
+  'How are you today? | 你今天好吗？',
+  'I know her name. | 我知道她的名字。',
+  'Let me help you. | 让我帮你。',
+  'May I come in? | 我能进来吗？',
+  'A cup of tea, please. | 请给我一杯茶。',
+  'The ball is round. | 球是圆的。',
+  'Open the door, please. | 请开门。',
+  'Put the toy in the box. | 把玩具放进盒子里。',
+  'Stop and look both ways. | 停下来两边看看。',
+  'Take an apple to school. | 带个苹果去学校。',
+  'Thank you for the gift. | 谢谢你的礼物。',
+  'I think it is good. | 我觉得它很好。',
+  'Walk to school with me. | 跟我一起走路去学校。',
+  'When do we go home? | 我们什么时候回家？',
+  'Some of them are red. | 它们中的一些是红色的。',
+  'I had a cat once. | 我曾经有过一只猫。',
+  'She has a pretty dress. | 她有一条漂亮的裙子。',
+  'Give him the pen. | 把钢笔给他。',
+  'His bag is old. | 他的包旧了。',
+  'Ask mom for help. | 向妈妈求助。',
+  'Every kid can play. | 每个孩子都能玩。',
+  'After school, I play. | 放学后我玩。',
+  'The book is by the bed. | 书在床边。',
+  'Could you help me? | 你能帮帮我吗？',
+  'I am going home now. | 我现在要回家了。',
+  'Then we eat cake. | 然后我们吃蛋糕。',
+  'We were at the park. | 我们在公园里。',
+  'I live with my mom and dad. | 我和爸爸妈妈住在一起。',
+  'The bird flies over the tree. | 鸟飞过树。',
+  'Any color is fine. | 什么颜色都行。',
+  /* --- 松果谷 --- */
+  'I always wash my hands. | 我总是洗手。',
+  'We sit around the table. | 我们围着桌子坐。',
+  'I like green apples. | 我喜欢青苹果。',
+  'It is very cold today. | 今天很冷。',
+  'Read this book to me. | 读这本书给我听。',
+  'I can sing a song. | 我会唱歌。',
+  'Why is the sky blue? | 天空为什么是蓝色的？',
+  'Which one do you like? | 你喜欢哪一个？',
+  'These are my shoes. | 这些是我的鞋子。',
+  'Those birds fly very fast. | 那些鸟飞得非常快。',
+  'I found five shells. | 我找到五个贝壳。',
+  'Mom made a big cake. | 妈妈做了个大蛋糕。',
+  'Pull the door open. | 把门拉开。',
+  'Tell me a story, please. | 请给我讲个故事。',
+  'Their house is very big. | 他们的房子很大。',
+  'I wish it would snow. | 我希望下雪。',
+  'Write your name here. | 把你的名字写在这儿。',
+  'I help mom with work. | 我帮妈妈干活。',
+  'The light is off. | 灯关了。',
+  'Would you like some tea? | 你想喝茶吗？',
+  'I read before I sleep. | 我睡觉前读书。',
+  'She is my best friend. | 她是我最好的朋友。',
+  'I love them both. | 他们两个我都喜欢。',
+  'Buy some bread, please. | 请买些面包。',
+  'Dad gave me a hug. | 爸爸给了我一个拥抱。',
+  'It goes up and down. | 它上上下下。',
+  'Use your own cup. | 用你自己的杯子。',
+  'The cat sleeps on its mat. | 猫睡在它的垫子上。',
+  'Once upon a time... | 很久很久以前……',
+  'She does her homework every day. | 她每天做作业。',
+  'Right or left? | 右边还是左边？',
+  /* --- 雪顶城 --- */
+  'I know a lot about dogs. | 我知道很多关于狗的事。',
+  'I feel better now. | 我现在好多了。',
+  'Bring your book to school. | 带你的书去学校。',
+  'Carry the bag for grandma. | 帮奶奶拎袋子。',
+  'Keep your hands clean. | 保持手干净。',
+  'Cut the paper, please. | 请把纸剪开。',
+  'My homework is done! | 我的作业做完啦！',
+  'I can draw a cat. | 我会画猫。',
+  'Drink some water. | 喝点水。',
+  'I am eight years old. | 我八岁了。',
+  'The leaves fall down. | 树叶落下来。',
+  'The school is not far. | 学校不远。',
+  'The bottle is full. | 瓶子满了。',
+  'I got a new toy! | 我得到了一个新玩具！',
+  'Plants grow in the sun. | 植物在阳光下生长。',
+  'Hold my hand. | 牵着我的手。',
+  'The soup is hot. | 汤很烫。',
+  'Does it hurt? | 疼吗？',
+  'If it rains, we stay home. | 如果下雨，我们就待在家。',
+  'Be kind to your friends. | 对朋友要好。',
+  'Do not laugh at others. | 不要笑话别人。',
+  'The light is yellow. | 灯是黄色的。',
+  'How long is the rope? | 绳子有多长？',
+  'Thank you so much! | 非常感谢！',
+  'I can do it myself. | 我自己能做。',
+  'I will never give up. | 我永不放弃。',
+  'Only one cookie left. | 只剩一块饼干了。',
+  'This is my own bag. | 这是我自己的包。',
+  'Pick a color you like. | 挑一个你喜欢的颜色。',
+  'Shall we go now? | 我们现在走好吗？',
+  'Show me your drawing. | 给我看看你的画。',
+  'The mouse is small. | 老鼠很小。',
+  'Let us start the game! | 我们开始游戏吧！',
+  'I have ten fingers. | 我有十根手指。',
+  'We play together. | 我们一起玩。',
+  'Try again, you can do it! | 再试一次，你能行！',
+  'The tea is warm. | 茶是温的。',
+  'Today is a good day. | 今天是美好的一天。',
+  /* --- 补漏：让每个词都在句子里出现过 --- */
+  'Did you see my pen? | 你看见我的钢笔了吗？',
+  'I was at home yesterday. | 我昨天在家。',
+  'How are you? I am well. | 你好吗？我很好。',
+  'The cat is as small as a ball. | 这只猫像球一样小。',
+  'This gift is from grandma. | 这个礼物是奶奶给的。',
+  'Just a moment, please. | 请稍等一下。',
+  'I smile because I am happy. | 我笑是因为我开心。',
+  'Where have you been? | 你去哪儿了？',
+  'Call me after school. | 放学后给我打电话。',
+  'My first stop is school. | 我的第一站是学校。',
+  'So many books on the desk! | 桌上有好多书！',
+  'I have six little ducks. | 我有六只小鸭子。'
+];
+
+</script>
+<script>
 /* =========================================================
    本周英语游戏 —— 句型 + 单词，iPad 触屏版
    ========================================================= */
@@ -2132,7 +2331,9 @@ function week1Data() {
   ];
   return {
     week: '第 1 周 · School things',
-    sentences: RAW_S.map(splitSent).filter(x => x && x.en),
+    // 默认句库 = 本周句型 + 220 高频词句子包（SENTENCES220 在 sentences220.js）
+    // typeof 防御：脚本没加载成功时也不至于把整个默认数据搞崩
+    sentences: RAW_S.concat(typeof SENTENCES220 !== 'undefined' ? SENTENCES220 : []).map(splitSent).filter(x => x && x.en),
     words: RAW_W.map(splitWord).filter(x => x && x.en),
     isDemo: false,
     settings: { recog: false, rate: 0.85, role: 'anna' }
@@ -4316,6 +4517,11 @@ function render() {
   v.innerHTML = (map[state.view] || viewPuzzle)();
   v.scrollTop = 0;
   paintTop();
+  if (state.view === 'spell') {
+    // 拼写页内容高（键盘/卡片/按钮），自动滚到底保证底部按钮看得见
+    const bar = document.querySelector('.sp-bar');
+    if (bar && bar.scrollIntoView) setTimeout(() => { try { bar.scrollIntoView({ block: 'nearest' }); } catch (e) {} }, 30);
+  }
   if (state.view === 'talk') {
     const now = document.getElementById('msgNow');
     if (now && now.scrollIntoView) { try { now.scrollIntoView({ block: 'center' }); } catch (e) {} }

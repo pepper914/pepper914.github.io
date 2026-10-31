@@ -1703,3 +1703,33 @@ body[data-view="talk"]   .chapter-banner { background: linear-gradient(90deg, #f
   .tabbar .tab-ico { font-size: 24px; }
   .tabbar .tab-txt { font-size: 13px; }
 }
+
+/* ============ 拼写页紧凑化：保证 键盘+按钮 一屏放得下（iPad 竖屏不滚动） ============ */
+body[data-view="spell"] .view { padding: 10px 14px 12px; }
+body[data-view="spell"] .chapter-banner { margin-bottom: 8px; padding: 8px 12px; }
+body[data-view="spell"] .page-title { margin: 4px 0 2px; font-size: 20px; }
+body[data-view="spell"] .page-hint { margin: 0 0 6px; font-size: 13px; }
+body[data-view="spell"] .sp-prompt { margin: 2px 0 4px; }
+body[data-view="spell"] .sp-ico { font-size: 32px; }
+body[data-view="spell"] .sp-zh { font-size: 26px; }
+body[data-view="spell"] .sp-speak { padding: 6px 12px; font-size: 14px; }
+body[data-view="spell"] .sp-stage { padding: 4px 0; }
+body[data-view="spell"] .sp-slot {
+  min-width: 42px; height: 54px; font-size: 30px;
+  border-width: 3px; border-radius: 12px;
+}
+body[data-view="spell"] .sp-msg { min-height: 20px; font-size: 15px; margin: 4px 0 2px; }
+body[data-view="spell"] .sp-cards { gap: 8px; margin: 8px 0 4px; }
+body[data-view="spell"] .sp-card {
+  min-width: 46px; height: 54px; font-size: 26px;
+  border-width: 3px; border-radius: 13px; box-shadow: 0 3px 0 #cfe6ff;
+}
+body[data-view="spell"] .sp-kb { margin: 8px 0 4px; }
+body[data-view="spell"] .sp-kb-row { gap: 6px; margin-bottom: 6px; }
+body[data-view="spell"] .sp-key {
+  min-width: 44px; height: 48px; font-size: 20px;
+  border-width: 2px; border-radius: 10px; box-shadow: 0 2px 0 #cfe6ff;
+}
+body[data-view="spell"] .sp-key.wide { min-width: 132px; font-size: 17px; }
+body[data-view="spell"] .sp-bar { margin-top: 8px; gap: 10px; }
+body[data-view="spell"] .sp-bar .big-btn { padding: 10px 16px; font-size: 15px; }
