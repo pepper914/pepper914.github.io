@@ -152,7 +152,9 @@ const state = {
   spellQs: [], spellI: 0, spellBuf: [], spellUsed: [], spellGapAt: 0, spellMsg: '', spellBad: false,
   talkI: 0,
   recording: false,
-  mapOpen: false
+  mapOpen: false,
+  // 220 词探险：region = 区域 0-4，level = 区域内第几关，mode = 玩法轮到第几种
+  quest: { screen: 'map', region: 0, level: 0, mode: 0, picked: null, wrong: 0, qs: null }
 };
 
 /* ---------- 难度档位（按孩子分别记） ---------- */
@@ -625,6 +627,29 @@ function confetti() {
 }
 
 /* ---------- 弹层 ---------- */
+// 拼对时从句子框里迸出的小星星
+function popStars() {
+  const host = $('#slots') || $('#view');
+  if (!host) return;
+  const r = host.getBoundingClientRect();
+  for (let i = 0; i < 9; i++) {
+    const el = document.createElement('div');
+    el.className = 'pop-star';
+    el.textContent = ['⭐', '✨', '💫', '🌟'][i % 4];
+    el.style.left = (r.left + r.width * (0.12 + 0.76 * Math.random())) + 'px';
+    el.style.top = (r.top + r.height / 2) + 'px';
+    document.body.appendChild(el);
+    const dx = (Math.random() * 180 - 90).toFixed(0);
+    const dy = (-70 - Math.random() * 100).toFixed(0);
+    if (!el.animate) { setTimeout(() => el.remove(), 1100); continue; }
+    const a = el.animate([
+      { transform: 'translate(0,0) scale(.5)', opacity: 1 },
+      { transform: `translate(${dx}px,${dy}px) scale(1.3)`, opacity: 0 }
+    ], { duration: 950 + Math.random() * 450, easing: 'cubic-bezier(.2,.7,.4,1)' });
+    a.onfinish = () => el.remove();
+  }
+}
+
 function showOverlay(html, ms) {
   $('#overlayCard').innerHTML = html;
   $('#overlay').classList.remove('hidden');
@@ -822,6 +847,11 @@ function viewPuzzle() {
   let html = '<div class="view-inner">';
   html += chapterBanner('puzzle');
   html += `<h2 class="page-title">❄️ 把冻住的句子拼回来</h2>`;
+  // 进度点：一眼看到拼到第几句，点圆点可以直接跳那句
+  const aw = (prog[state.kid] || { awarded: {} }).awarded;
+  html += `<div class="pz-progress"><span class="pz-count">第 ${state.puzzleIdx + 1} / ${data.sentences.length} 句</span>
+    <span class="pz-dots">${data.sentences.map((_, i) =>
+      `<button class="pz-dot ${i === state.puzzleIdx ? 'cur' : ''} ${aw['puzzle_' + i] ? 'done' : ''}" data-act="pz-jump" data-i="${i}" aria-label="第${i + 1}句"></button>`).join('')}</span></div>`;
   html += `<p class="page-hint">${esc(s.zh || '点下面的单词卡片，按顺序放进上面的方框')}</p>`;
   if (levelOf() === 'hard') {
     const wordsN = tail ? toks.length - 1 : toks.length;
@@ -937,6 +967,7 @@ function pzCheck() {
   if (ok) {
     sfx('win');
     confetti();
+    popStars();
     $$('.slot').forEach(el => el.classList.add('right'));
     const fresh = award('puzzle_' + state.puzzleIdx);
     speak(s.en, { rate: 0.8 });
@@ -946,8 +977,10 @@ function pzCheck() {
     // 章节还没完：庆祝一下，自动去下一个没拼过的句子（不用回列表再点）
     const next = nextPuzzleIdx(state.puzzleIdx);
     if (next === null) { state.puzzleIdx = null; chapterClear('puzzle'); return; }
+    const cheers = ['太棒了！', '冰雪在融化！', '爱莎为你鼓掌！', '句子复活啦！', '好厉害！', '魔法+1！'];
+    const cheer = cheers[Math.floor(Math.random() * cheers.length)];
     showOverlay(`<div class="overlay-emoji">🎉</div>
-      <h3 class="overlay-title">拼对啦！</h3>
+      <h3 class="overlay-title">拼对啦！${cheer}</h3>
       <p class="overlay-text">${esc(s.en)}<br><span style="color:#a0a0a0">${esc(s.zh || '')}</span></p>
       <div class="ov-btns">
         <button class="big-btn green" data-act="pz-next" data-i="${next}">下一句 →</button>
@@ -965,6 +998,275 @@ function pzCheck() {
       paintPuzzle();
     }, 1200);
   }
+}
+
+/* =========================================================
+   视图：220 词探险（长期主线 · 五个区域）
+   实词记中文意思，功能词放进短语里认识
+   ========================================================= */
+const Q_MODES = [
+  { k: 'e2z',   ico: '🔤', name: '看词选义',   ask: '它的中文意思是？' },
+  { k: 'z2e',   ico: '🀄', name: '看义选词',   ask: '用英语怎么说？' },
+  { k: 'match', ico: '🧩', name: '配对消消乐', ask: '把英文和中文配成一对' },
+  { k: 'listen',ico: '👂', name: '听音选义',   ask: '听一听，它是什么意思？' }
+];
+const QSIZE = () => (window.QUEST_LEVEL_SIZE || 8);
+
+function qWords(r) { return (window.WORDS220 || []).filter(w => w.r === r); }
+function qLevelCount(r) { return Math.ceil(qWords(r).length / QSIZE()); }
+function qLevelWords(r, l) { const a = qWords(r), s = QSIZE(); return a.slice(l * s, l * s + s); }
+function qKey(r, l, i, d) { return 'q' + r + '_' + l + '_' + i + '_' + d; }
+function qKnown(r, l, i, d) {
+  const p = prog[state.kid] && prog[state.kid].awarded;
+  return !!(p && p[qKey(r, l, i, d)]);
+}
+function qLevelClear(r, l) {
+  return qLevelWords(r, l).every((_, i) => qKnown(r, l, i, 'e') && qKnown(r, l, i, 'z'));
+}
+function qRegionClear(r) {
+  for (let l = 0; l < qLevelCount(r); l++) if (!qLevelClear(r, l)) return false;
+  return true;
+}
+function qRegionUnlocked(r) { return r === 0 || qRegionClear(r - 1); }
+function qLevelUnlocked(r, l) {
+  return qRegionUnlocked(r) && (l === 0 || qLevelClear(r, l - 1));
+}
+function qNextLevel(r, l) {
+  for (let i = l; i < qLevelCount(r); i++) if (!qLevelClear(r, i)) return { r, l: i };
+  if (r + 1 < 5 && qRegionUnlocked(r + 1)) {
+    for (let i = 0; i < qLevelCount(r + 1); i++) if (!qLevelClear(r + 1, i)) return { r: r + 1, l: i };
+  }
+  return null;
+}
+function qTotalKnown() {
+  let n = 0;
+  for (let r = 0; r < 5; r++) {
+    const cnt = qWords(r).length;
+    for (let i = 0; i < cnt; i++) {
+      const l = Math.floor(i / QSIZE()), k = i % QSIZE();
+      if (qKnown(r, l, k, 'e')) n++;
+      if (qKnown(r, l, k, 'z')) n++;
+    }
+  }
+  return n;
+}
+
+function viewQuest() {
+  return state.quest.screen === 'play' ? viewQuestPlay() : viewQuestMap();
+}
+
+/* ---------- 探险地图 ---------- */
+function viewQuestMap() {
+  const R = window.QUEST_REGIONS || [];
+  let html = '<div class="view-inner">';
+  html += `<h2 class="page-title">🗺️ 单词探险地图</h2>`;
+  html += `<p class="page-hint">每个词要走两遍：英→中、中→英。已点亮 ${qTotalKnown()} / 440</p>`;
+
+  R.forEach((reg, r) => {
+    const unlocked = qRegionUnlocked(r);
+    const clear = qRegionClear(r);
+    const lc = qLevelCount(r);
+    let passed = 0;
+    for (let l = 0; l < lc; l++) if (qLevelClear(r, l)) passed++;
+    html += `<div class="q-region ${clear ? 'done' : unlocked ? 'open' : 'lock'}">
+      <div class="qr-head">
+        <span class="qr-ico">${clear ? '🏆' : unlocked ? reg.ico : '🔒'}</span>
+        <div class="qr-body">
+          <div class="qr-title">第${reg.n}区 · ${reg.name}${clear ? ' ✅' : ''}</div>
+          <div class="qr-text">${unlocked ? esc(reg.text) : '通过上一个区域后解锁'}</div>
+        </div>
+        <div class="qr-count">${passed}/${lc} 关</div>
+      </div>`;
+    if (unlocked) {
+      html += '<div class="q-steps">';
+      for (let l = 0; l < lc; l++) {
+        const ok = qLevelClear(r, l);
+        const open = qLevelUnlocked(r, l);
+        html += `<button class="q-step ${ok ? 'done' : open ? 'open' : 'lock'}" ${open ? `data-act="q-level" data-r="${r}" data-l="${l}"` : 'disabled'}>${ok ? '⭐' : open ? (l + 1) : '🔒'}</button>`;
+      }
+      html += '</div>';
+    }
+  });
+  html += '</div>';
+  return html;
+}
+
+/* ---------- 关卡内 ---------- */
+function qEnsureQs() {
+  const q = state.quest;
+  if (!q.qs || !q.qs.length) {
+    const ws = qLevelWords(q.region, q.level);
+    const list = [];
+    ws.forEach((w, i) => {
+      if (!qKnown(q.region, q.level, i, 'e')) list.push({ i, dir: 'e' });
+      if (!qKnown(q.region, q.level, i, 'z')) list.push({ i, dir: 'z' });
+    });
+    q.qs = shuffle(list);
+  }
+  return q.qs;
+}
+
+function qOpts(w, dir) {
+  const pool = qWords(state.quest.region).filter(x => x !== w);
+  const picks = shuffle(pool).slice(0, 3);
+  const right = dir === 'e' ? w.zh : w.en;
+  const opts = [right];
+  picks.forEach(x => {
+    const v = dir === 'e' ? x.zh : x.en;
+    if (v && opts.indexOf(v) < 0 && opts.length < 4) opts.push(v);
+  });
+  return shuffle(opts);
+}
+
+function viewQuestPlay() {
+  const q = state.quest;
+  const R = window.QUEST_REGIONS || [];
+  const reg = R[q.region] || { name: '探险', n: q.region + 1, ico: '🏔️' };
+  const lc = qLevelCount(q.region);
+  const qs = qEnsureQs();
+
+  let html = '<div class="view-inner">';
+  html += `<div class="chapter-banner q-banner"><span class="cb-n">第${reg.n}区</span> ${reg.ico} ${reg.name}
+    <span class="cb-tip">第 ${q.level + 1} / ${lc} 关</span></div>`;
+
+  if (!qs.length) {
+    html += `<div class="q-done-card"><div class="qd-emoji">🎉</div>
+      <h3>这一关全部认全了！</h3>
+      <p class="qd-sub">${esc(reg.name)} · 第 ${q.level + 1} 关</p>
+      <div class="ov-btns">
+        <button class="big-btn green" data-act="q-next">去下一关 →</button>
+        <button class="big-btn ghost" data-act="q-map">🗺️ 回地图</button>
+      </div></div></div>`;
+    return html;
+  }
+
+  const cur = qs[0];
+  const ws = qLevelWords(q.region, q.level);
+  const w = ws[cur.i];
+  const mode = Q_MODES[q.mode % Q_MODES.length];
+
+  html += '<div class="pz-progress"><span class="pz-count">第 ' + (q.level + 1) + ' 关 · ' + mode.ico + ' ' + mode.name + '</span><span class="pz-dots">';
+  ws.forEach((_, i) => {
+    const e = qKnown(q.region, q.level, i, 'e');
+    const z = qKnown(q.region, q.level, i, 'z');
+    html += `<span class="pz-dot ${e && z ? 'done' : i === cur.i ? 'cur' : ''}"></span>`;
+  });
+  html += '</span></div>';
+
+  const isFn = !!w.ph;
+  let stem, ask;
+  if (cur.dir === 'e') {
+    stem = isFn ? w.ph : w.en;
+    ask = isFn ? '这句话里的空，中文怎么讲？' : mode.ask;
+  } else {
+    stem = isFn ? w.ph.replace(new RegExp('\\b' + w.en.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') + '\\b'), '___') : w.zh;
+    ask = isFn ? '空格里填哪个词？' : mode.ask;
+  }
+
+  html += `<div class="q-card">
+    <div class="q-emoji">${w.em || '❄️'}</div>
+    <div class="q-word">${esc(stem)}</div>
+    <div class="q-ask">${esc(ask)}</div>
+  </div>`;
+
+  if (mode.k === 'listen') {
+    html += `<div class="q-listen"><button class="big-btn blue" data-act="q-say">🔊 再听一遍</button></div>`;
+  }
+
+  html += '<div class="q-opts">';
+  qOpts(w, cur.dir).forEach(o => {
+    html += `<button class="q-opt" data-act="q-ans" data-v="${esc(o)}">${esc(o)}</button>`;
+  });
+  html += '</div>';
+
+  html += `<div class="puzzle-bar">
+      <button class="big-btn ghost" data-act="q-hint">💡 提示</button>
+      <button class="big-btn ghost" data-act="q-skip">⏭️ 换一个</button>
+      <button class="big-btn ghost" data-act="q-map">🗺️ 地图</button>
+    </div>`;
+  html += '</div>';
+  return html;
+}
+
+/* ---------- 自制解锁动画（纯 CSS + emoji） ---------- */
+function showUnlock(title, sub, act) {
+  const html = `<div class="ul-stage">
+    <div class="ul-glow"></div>
+    <div class="ul-ring r1"></div>
+    <div class="ul-ring r2"></div>
+    <div class="ul-ring r3"></div>
+    <div class="ul-door left"></div>
+    <div class="ul-door right"></div>
+    <div class="ul-chest">🎁</div>
+    <div class="ul-spark s1">❄️</div>
+    <div class="ul-spark s2">❄️</div>
+    <div class="ul-spark s3">❄️</div>
+    <div class="ul-spark s4">❄️</div>
+    <div class="ul-txt"><h3>${esc(title)}</h3><p>${esc(sub)}</p></div>
+    <div class="ov-btns"><button class="big-btn green" data-act="${act}">继续冒险 →</button></div>
+  </div>`;
+  showOverlay(html, 0);
+}
+
+function qGo(r, l) {
+  const q = state.quest;
+  q.region = r; q.level = l; q.screen = 'play';
+  q.qs = null; q.picked = null; q.wrong = 0;
+  sfx('tap');
+  render();
+}
+
+function qAnswer(v) {
+  const q = state.quest;
+  const qs = qEnsureQs();
+  const cur = qs[0];
+  const w = qLevelWords(q.region, q.level)[cur.i];
+  const right = cur.dir === 'e' ? w.zh : w.en;
+  if (String(v) === String(right)) {
+    sfx('right');
+    award(qKey(q.region, q.level, cur.i, cur.dir));
+    qs.shift();
+    q.picked = null; q.wrong = 0;
+    q.mode++;
+    if (qLevelClear(q.region, q.level)) {
+      const reg = (window.QUEST_REGIONS || [])[q.region] || { name: '', n: q.region + 1 };
+      if (qRegionClear(q.region)) {
+        sfx('win'); confetti();
+        setTimeout(() => showUnlock(`第${reg.n}区 · ${reg.name} 全部通关！`, '冰雪正在融化，下一片土地出现了！', 'q-next'), 300);
+      } else {
+        sfx('win'); confetti(); popStars();
+        setTimeout(() => showUnlock('这一关过关啦！', `拿到了 ${reg.name} 的一枚小徽章 ⭐`, 'q-next'), 300);
+      }
+      return;
+    }
+  }
+  sfx('wrong');
+  q.wrong++;
+  q.qs = shuffle(qs);
+  render();
+}
+
+function qHint() {
+  const q = state.quest;
+  const qs = qEnsureQs();
+  const cur = qs[0];
+  const w = qLevelWords(q.region, q.level)[cur.i];
+  const right = cur.dir === 'e' ? w.zh : w.en;
+  showOverlay(`<div class="overlay-emoji">💡</div>
+    <h3 class="overlay-title">答案是：${esc(right)}</h3>
+    <p class="overlay-text">${esc(w.phz || w.zh)}<br><span style="color:#a0a0a0">${esc(w.ph || w.en)}</span></p>
+    <div class="ov-btns">
+      <button class="big-btn green" data-act="q-ans" data-v="${esc(right)}">我知道啦，选它</button>
+      <button class="big-btn ghost" data-act="ov-close">再想想</button>
+    </div>`, 0);
+}
+
+function qSkip() {
+  const q = state.quest;
+  const qs = qEnsureQs();
+  if (qs.length > 1) q.qs = shuffle(qs);
+  sfx('tap');
+  render();
 }
 
 // 下一个还没拼对的句子：先往后找，找不到就绕回开头找
@@ -1977,8 +2279,9 @@ function demoData() {
    渲染与事件
    ========================================================= */
 function render() {
+  document.body.dataset.view = state.view; // 每章换场景配色
   const v = $('#view');
-  const map = { puzzle: viewPuzzle, spell: viewSpell, fill: viewFill, listen: viewListen, talk: viewTalk, setup: viewSetup };
+  const map = { quest: viewQuest, puzzle: viewPuzzle, spell: viewSpell, fill: viewFill, listen: viewListen, talk: viewTalk, setup: viewSetup };
   v.innerHTML = (map[state.view] || viewPuzzle)();
   v.scrollTop = 0;
   paintTop();
@@ -1987,6 +2290,14 @@ function render() {
     if (now && now.scrollIntoView) { try { now.scrollIntoView({ block: 'center' }); } catch (e) {} }
   }
   if (state.view === 'puzzle' && state.puzzleIdx !== null) initPuzzle();
+  if (state.view === 'quest' && state.quest.screen === 'play') {
+    const qs = qEnsureQs();
+    const mode = Q_MODES[state.quest.mode % Q_MODES.length];
+    if (qs.length && mode.k === 'listen') {
+      const w = qLevelWords(state.quest.region, state.quest.level)[qs[0].i];
+      speak(w.ph || w.en, { rate: 0.8 });
+    }
+  }
 }
 
 function switchView(name) {
@@ -1996,7 +2307,21 @@ function switchView(name) {
   if (name === 'listen') { state.listenQs = []; state.listenI = 0; }
   if (name === 'spell') { state.spellQs = []; state.spellI = 0; spResetBuf(); }
   if (name === 'talk') { state.talkI = 0; }
-  if (name !== 'puzzle') state.puzzleIdx = null;
+  if (name === 'quest') {
+    // 点「探险」tab 直接进到该玩的那一关（地图可从关卡页「🗺️ 地图」打开）
+    const nx = qNextLevel(state.quest.region, state.quest.level);
+    if (nx) { state.quest.region = nx.r; state.quest.level = nx.l; state.quest.qs = null; }
+    state.quest.screen = nx ? 'play' : 'map';
+  }
+  if (name === 'puzzle') {
+    // 点「拼句子」tab 直接进到没拼过的句子，不再先停在列表/地图页
+    if (state.puzzleIdx === null) {
+      const nx = nextPuzzleIdx(-1);
+      state.puzzleIdx = nx === null ? 0 : nx; // 全拼完就回第一句复习
+    }
+  } else {
+    state.puzzleIdx = null;
+  }
   render();
 }
 
@@ -2051,6 +2376,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 拼句子
     if (act === 'pz-open') { state.puzzleIdx = +el.dataset.i; sfx('tap'); render(); return; }
+    if (act === 'pz-jump') { goPuzzle(+el.dataset.i); return; }
+
+    // 220 词探险
+    if (act === 'q-level') { qGo(+el.dataset.r, +el.dataset.l); return; }
+    if (act === 'q-map') { state.quest.screen = 'map'; sfx('tap'); render(); return; }
+    if (act === 'q-ans') { qAnswer(el.dataset.v); return; }
+    if (act === 'q-hint') { qHint(); return; }
+    if (act === 'q-skip') { qSkip(); return; }
+    if (act === 'q-say') {
+      const q0 = qEnsureQs()[0];
+      const w0 = qLevelWords(state.quest.region, state.quest.level)[q0.i];
+      speak(w0.ph || w0.en, { rate: 0.8 });
+      return;
+    }
+    if (act === 'q-next') {
+      hideOverlay();
+      const nx = qNextLevel(state.quest.region, state.quest.level);
+      if (nx) qGo(nx.r, nx.l);
+      else { state.quest.screen = 'map'; render(); }
+      return;
+    }
     if (act === 'pz-slot') { pzPlace(+el.dataset.p); return; }
     if (act === 'pz-unslot') { pzUnslot(+el.dataset.i); return; }
     if (act === 'pz-hint') { pzHint(); return; }
@@ -2304,7 +2650,7 @@ function importData() {
   const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPadOS 13+ 伪装成 Mac
   const inStandalone = window.navigator.standalone === true ||
-    window.matchMedia('(display-mode: standalone)').matches;
+    (typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches);
   if (!iOS || inStandalone) return;
   if (localStorage.getItem('pwa_hint_dismissed')) return;
   const bar = document.createElement('div');
