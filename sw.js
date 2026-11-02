@@ -1,6 +1,6 @@
 /* 冰雪城堡英语大冒险 · Service Worker
    改代码后把 CACHE 里的版本号 +1（eg-v2、eg-v3…）才会让 iPad 上的 PWA 拿到新版 */
-const CACHE = 'eg-v3';
+const CACHE = 'eg-v5';
 const ASSETS = [
   './',
   './index.html',

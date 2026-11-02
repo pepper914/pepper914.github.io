@@ -149,6 +149,8 @@ const state = {
   view: 'puzzle',
   kid: 'juicy',
   puzzleIdx: null,
+  pzGroup: 'week',          // 拼句子当前组（一组一组解锁）
+  wordSrc: 'week',          // 单词题词库：week=本周单词，quest=探险区域的 220 词
   fillQs: [], fillI: 0,
   listenQs: [], listenI: 0,
   spellQs: [], spellI: 0, spellBuf: [], spellUsed: [], spellGapAt: 0, spellMsg: '', spellBad: false,
@@ -491,18 +493,98 @@ function tokenize(s) {
   return (String(s).trim().match(/[A-Za-z][A-Za-z']*|[.,!?]/g) || []);
 }
 
-// 拆分 "英文 | 中文"
+// 拆分 "英文 | 中文"，支持前缀 "@组ID|"（220 句包的分组标记）
 function splitSent(line) {
+  let g = '';
+  const gm = String(line).match(/^@(\w+)\|/);
+  if (gm) { g = gm[1]; line = String(line).slice(gm[0].length); }
   let parts = line.split(/[|｜\t]/).map(s => s.trim()).filter(Boolean);
   if (!parts.length) return null;
-  if (parts.length === 1) return { en: parts[0], zh: '' };
+  if (parts.length === 1) return { en: parts[0], zh: '', g };
   const zi = parts.findIndex(p => /[\u4e00-\u9fa5]/.test(p));
   if (zi >= 0) {
     const zh = parts[zi];
     const en = parts.filter((_, i) => i !== zi).join(' ');
-    return { en, zh };
+    return { en, zh, g };
   }
-  return { en: parts[0], zh: parts.slice(1).join(' ') };
+  return { en: parts[0], zh: parts.slice(1).join(' '), g };
+}
+
+/* ---------- 句子分组：一组一组解锁，不一次全放出来 ---------- */
+function sentGroups() {
+  const base = [{ id: 'week', name: '本周句型', ico: '📖' }];
+  if (typeof SENT_GROUPS !== 'undefined' && Array.isArray(SENT_GROUPS)) {
+    SENT_GROUPS.forEach(gr => base.push({ id: gr[0], name: gr[1], ico: gr[2] }));
+  }
+  return base;
+}
+// 某组的句子在 data.sentences 里的全局下标（没有分组标记 = 老板录入的本周句型）
+function groupIdx(g) {
+  const out = [];
+  data.sentences.forEach((s, i) => { if ((s.g || 'week') === g) out.push(i); });
+  return out;
+}
+function groupDone(g) {
+  const aw = (prog[state.kid] || { awarded: {} }).awarded;
+  const idx = groupIdx(g);
+  return idx.length > 0 && idx.every(i => aw['puzzle_' + i]);
+}
+// 顺序解锁：前一组拼完才开下一组（本周句型永远开着）
+function groupUnlocked(g) {
+  const gs = sentGroups();
+  for (let k = 0; k < gs.length; k++) {
+    if (gs[k].id === g) return k === 0 || groupDone(gs[k - 1].id);
+  }
+  return true;
+}
+// 当前有效组：state.pzGroup 无效或被锁时回退到第一个没拼完的组
+function pzCurGroup() {
+  const gs = sentGroups();
+  const usable = g => groupUnlocked(g) && groupIdx(g).length;
+  if (state.pzGroup && usable(state.pzGroup)) {
+    if (!groupDone(state.pzGroup)) return state.pzGroup;
+    // 这组拼完啦：下一组已解锁就去下一组（全拼完就留在原地）
+    const nx = pzNextGroup(state.pzGroup);
+    if (nx && groupUnlocked(nx) && !groupDone(nx)) return nx;
+    return state.pzGroup;
+  }
+  for (const g of gs) { if (usable(g.id) && !groupDone(g.id)) return g.id; }
+  return (gs[gs.length - 1] || { id: 'week' }).id;
+}
+// 下一组的 id（全拼完返回 null）
+function pzNextGroup(g) {
+  const gs = sentGroups();
+  for (let k = 0; k < gs.length; k++) {
+    if (gs[k].id === g) return gs[k + 1] ? gs[k + 1].id : null;
+  }
+  return null;
+}
+
+/* ---------- 单词题词库：本周单词 or 探险区域的 220 词 ---------- */
+// 探险当前区域的词（40 词左右，跟着探险进度走）
+function questPool() {
+  if (typeof RAW220 === 'undefined') return [];
+  const r = state.quest.region;
+  return RAW220.filter(w => w[0] === r).map((w, i) => ({ en: w[1], zh: w[2], qi: i }));
+}
+function wordPool() {
+  if (state.wordSrc === 'quest') { const p = questPool(); if (p.length) return p; }
+  return data.words;
+}
+// 进度键：本周词用 fill_w0…，探险词用 fill_wq0…（互不干扰）
+function wordKey(prefix, w) {
+  if (w && w.qi !== undefined) return prefix + 'q' + w.qi;
+  return prefix + w.wi;
+}
+// 词库切换条（填空 / 听音 / 拼写 三个视图共用）
+function srcChips() {
+  if (typeof RAW220 === 'undefined') return '';
+  const R = (window.QUEST_REGIONS || [])[state.quest.region] || { ico: '🗺️', name: '探险' };
+  const quest = state.wordSrc === 'quest';
+  return `<div class="src-chips">
+    <button class="src-chip ${quest ? '' : 'on'}" data-act="src-week">📖 本周单词</button>
+    <button class="src-chip ${quest ? 'on' : ''}" data-act="src-quest">🗺️ 探险 · ${esc(R.name)}</button>
+  </div>`;
 }
 
 // 拆分 "apple 苹果" / "ice cream 冰淇淋"
@@ -849,10 +931,25 @@ function viewPuzzle() {
   let html = '<div class="view-inner">';
   html += chapterBanner('puzzle');
   html += `<h2 class="page-title">❄️ 把冻住的句子拼回来</h2>`;
-  // 进度点：一眼看到拼到第几句，点圆点可以直接跳那句
+  // 分组条：一组一组解锁，拼完一组开下一组
+  const curG = pzCurGroup();
+  state.pzGroup = curG;
+  const gIdx = groupIdx(curG);
+  const gMeta = sentGroups().find(x => x.id === curG) || { ico: '', name: '' };
+  html += `<div class="pz-groups">`;
+  sentGroups().forEach(g => {
+    if (!groupIdx(g.id).length) return; // 没内容（如没装 220 句包）的组不显示
+    const un = groupUnlocked(g.id);
+    const dn = groupDone(g.id);
+    html += `<button class="pz-gchip ${g.id === curG ? 'on' : ''} ${un ? '' : 'lock'}" data-act="pz-group" data-g="${g.id}"
+      ${un ? '' : 'disabled'}>${g.ico}${un ? '' : '🔒'}${dn ? '✓' : ''}<span>${esc(g.name)}</span></button>`;
+  });
+  html += `</div>`;
+  // 进度点：只看当前组，点圆点可以直接跳那句
   const aw = (prog[state.kid] || { awarded: {} }).awarded;
-  html += `<div class="pz-progress"><span class="pz-count">第 ${state.puzzleIdx + 1} / ${data.sentences.length} 句</span>
-    <span class="pz-dots">${data.sentences.map((_, i) =>
+  const gPos = gIdx.indexOf(state.puzzleIdx);
+  html += `<div class="pz-progress"><span class="pz-count">${gMeta.ico} ${esc(gMeta.name)} · 第 ${gPos + 1} / ${gIdx.length} 句</span>
+    <span class="pz-dots">${gIdx.map(i =>
       `<button class="pz-dot ${i === state.puzzleIdx ? 'cur' : ''} ${aw['puzzle_' + i] ? 'done' : ''}" data-act="pz-jump" data-i="${i}" aria-label="第${i + 1}句"></button>`).join('')}</span></div>`;
   html += `<p class="page-hint">${esc(s.zh || '点下面的单词卡片，按顺序放进上面的方框')}</p>`;
   if (levelOf() === 'hard') {
@@ -885,15 +982,24 @@ function viewPuzzleList() {
   }
   html += castleHTML();
   html += `<h2 class="page-title">🧊 选一句被冻住的句子</h2>`;
-  html += `<p class="page-hint">句子碎成单词冰碴了，点进去把它拼回来</p>`;
+  html += `<p class="page-hint">句子碎成单词冰碴了，点进去把它拼回来（🔒 的组要先拼完前面一组）</p>`;
   html += '<div class="sent-list">';
-  data.sentences.forEach((s, i) => {
-    const done = (prog[state.kid] || { awarded: {} }).awarded['puzzle_' + i];
-    html += `<button class="sent-card ${done ? 'done' : ''}" data-act="pz-open" data-i="${i}">
-      ${done ? '<span class="done-flag">✅</span>' : ''}
-      <div class="en">${esc(s.en)}</div>
-      <div class="zh">${esc(s.zh || '')}</div>
-    </button>`;
+  sentGroups().forEach(g => {
+    const idx = groupIdx(g.id);
+    if (!idx.length) return;
+    const un = groupUnlocked(g.id);
+    const dn = groupDone(g.id);
+    html += `<div class="sent-group-h ${un ? '' : 'lock'}">${g.ico} ${esc(g.name)}
+      ${un ? (dn ? '· 全拼完啦 ✓' : `· ${idx.filter(i => !(prog[state.kid] || { awarded: {} }).awarded['puzzle_' + i]).length} 句没拼`) : '· 🔒 还没解锁'}</div>`;
+    idx.forEach(i => {
+      const s = data.sentences[i];
+      const done = (prog[state.kid] || { awarded: {} }).awarded['puzzle_' + i];
+      html += `<button class="sent-card ${done ? 'done' : ''} ${un ? '' : 'lock'}" data-act="pz-open" data-i="${i}" ${un ? '' : 'disabled'}>
+        ${done ? '<span class="done-flag">✅</span>' : ''}
+        <div class="en">${esc(s.en)}</div>
+        <div class="zh">${esc(s.zh || '')}</div>
+      </button>`;
+    });
   });
   html += '</div></div>';
   return html;
@@ -976,9 +1082,26 @@ function pzCheck() {
     if (state.finalePending) { state.finalePending = false; finaleShow(); return; }
     if (state.chapterJustDone === 'puzzle') { state.chapterJustDone = null; state.puzzleIdx = null; chapterClear('puzzle'); return; }
 
-    // 章节还没完：庆祝一下，自动去下一个没拼过的句子（不用回列表再点）
+    // 组内还有没拼的：庆祝一下，自动去下一句（不用回列表再点）
     const next = nextPuzzleIdx(state.puzzleIdx);
-    if (next === null) { state.puzzleIdx = null; chapterClear('puzzle'); return; }
+    if (next === null) {
+      // 本组拼完啦：还有下一组就去下一组，全部拼完才算章节通关
+      const curG = pzCurGroup();
+      const nxtG = pzNextGroup(curG);
+      const gMeta = sentGroups().find(x => x.id === curG) || { ico: '', name: '' };
+      const nMeta = nxtG ? sentGroups().find(x => x.id === nxtG) : null;
+      if (!nxtG) { state.puzzleIdx = null; chapterClear('puzzle'); return; }
+      showOverlay(`<div class="overlay-emoji">${gMeta.ico}</div>
+        <h3 class="overlay-title">这一组全拼完啦！</h3>
+        <p class="overlay-text">「${esc(gMeta.name)}」解锁成功${nMeta ? `，下一站：<b>${nMeta.ico} ${esc(nMeta.name)}</b>` : ''}</p>
+        <div class="ov-btns">
+          <button class="big-btn green" data-act="pz-nextgroup">去下一组 →</button>
+        </div>
+        <p class="auto-tip">马上自动出发…</p>`);
+      if (pzAutoTimer) clearTimeout(pzAutoTimer);
+      pzAutoTimer = setTimeout(() => { pzAutoTimer = null; goGroup(nxtG); }, 2600);
+      return;
+    }
     const cheers = ['太棒了！', '冰雪在融化！', '爱莎为你鼓掌！', '句子复活啦！', '好厉害！', '魔法+1！'];
     const cheer = cheers[Math.floor(Math.random() * cheers.length)];
     showOverlay(`<div class="overlay-emoji">🎉</div>
@@ -1271,9 +1394,16 @@ function qSkip() {
   render();
 }
 
-// 下一个还没拼对的句子：先往后找，找不到就绕回开头找
+// 下一个还没拼对的句子：先在当前组里往后找，找不到绕回开头找；当前组全拼完返回 null
 function nextPuzzleIdx(cur) {
   const done = i => !!(prog[state.kid] || { awarded: {} }).awarded['puzzle_' + i];
+  const gIdx = groupIdx(pzCurGroup());
+  const pos = gIdx.indexOf(cur);
+  if (pos >= 0) {
+    for (let k = pos + 1; k < gIdx.length; k++) if (!done(gIdx[k])) return gIdx[k];
+    for (let k = 0; k < pos; k++) if (!done(gIdx[k])) return gIdx[k];
+    return null; // 本组拼完了
+  }
   for (let i = cur + 1; i < data.sentences.length; i++) if (!done(i)) return i;
   for (let i = 0; i < cur; i++) if (!done(i)) return i;
   return null;
@@ -1283,6 +1413,20 @@ function goPuzzle(i) {
   if (pzAutoTimer) { clearTimeout(pzAutoTimer); pzAutoTimer = null; }
   hideOverlay();
   state.puzzleIdx = i;
+  sfx('tap');
+  render();
+}
+
+// 切到某个句子组：跳到组里第一句没拼过的（锁住的组点不动）
+function goGroup(g) {
+  if (!groupUnlocked(g)) { sfx('tap'); return; }
+  if (pzAutoTimer) { clearTimeout(pzAutoTimer); pzAutoTimer = null; }
+  hideOverlay();
+  state.pzGroup = g;
+  const gIdx = groupIdx(g);
+  const done = i => !!(prog[state.kid] || { awarded: {} }).awarded['puzzle_' + i];
+  const first = gIdx.find(i => !done(i));
+  state.puzzleIdx = first === undefined ? (gIdx[0] !== undefined ? gIdx[0] : null) : first;
   sfx('tap');
   render();
 }
@@ -1335,8 +1479,8 @@ function buildFillQs() {
     qs.push({ kind: 'sentence', toks, blanks, filled: [], sent: s, si });
   });
 
-  data.words.forEach((w, wi) => {
-    qs.push({ kind: 'word', target: w.en, opts: hard ? optsAround(w.en, 4) : easyOpts(w.en), word: w, wi });
+  wordPool().forEach(w => {
+    qs.push({ kind: 'word', target: w.en, opts: hard ? optsAround(w.en, 4) : easyOpts(w.en), word: w });
   });
 
   // 进阶专属题型：给中文，选正确的英文句子
@@ -1364,7 +1508,7 @@ function fillBlankHTML(tok, i, q) {
 }
 
 function viewFill() {
-  if (!data.sentences.length && !data.words.length) return emptyView('🕳️', '还没有内容', '去「设置」里添加句型和单词');
+  if (!data.sentences.length && !wordPool().length) return emptyView('🕳️', '还没有内容', '去「设置」里添加句型和单词');
   if (!state.fillQs.length) state.fillQs = shuffle(buildFillQs());
   const q = state.fillQs[state.fillI];
   if (!q) { setTimeout(() => { state.fillQs = []; state.fillI = 0; render(); }, 0); return '<div class="view-inner"></div>'; }
@@ -1391,6 +1535,7 @@ function viewFill() {
 
   let html = '<div class="view-inner">';
   html += chapterBanner('fill');
+  html += srcChips();
   html += `<h2 class="page-title">🕳️ ${title}</h2>`;
   html += `<p class="page-hint">第 ${state.fillI + 1} / ${state.fillQs.length} 题</p>`;
   html += body;
@@ -1438,7 +1583,7 @@ function fillPick(btn) {
   if (pick.toLowerCase() === String(target).toLowerCase()) {
     btn.classList.add('ok');
     sfx('right');
-    const key = q.kind === 'zh2en' ? 'fill_z' + q.si : 'fill_w' + q.wi;
+    const key = q.kind === 'zh2en' ? 'fill_z' + q.si : wordKey('fill_w', q.word);
     award(key);
     speak(target);
     setTimeout(nextFill, 1100);
@@ -1474,11 +1619,13 @@ function showFillFinish() {
    设计原则：错不扣分、提示随时给，先让她愿意拼，再求拼对
    ========================================================= */
 
-// 能拿來拼写的词：单个英文词（名词、代词都算）
+// 能拿來拼写的词：单个英文词（名词、代词都算）；词库跟着 state.wordSrc 走
 function spellWords() {
   const out = [];
-  data.words.forEach((w, i) => {
-    if (/^[A-Za-z]{2,}$/.test(w.en.trim())) out.push({ en: w.en.trim(), zh: w.zh, wi: i });
+  wordPool().forEach((w, i) => {
+    if (/^[A-Za-z]{2,}$/.test(w.en.trim())) {
+      out.push({ en: w.en.trim(), zh: w.zh, wi: w.wi !== undefined ? w.wi : i, qi: w.qi });
+    }
   });
   return out;
 }
@@ -1491,16 +1638,17 @@ function buildSpellQs() {
   if (!ws.length) return [];
   const p = prog[state.kid] || { awarded: {} };
   const aw = p.awarded || {};
+  const kOf = x => wordKey('spell_', x);
   // 还不会的排前面；会了的也保留，混着练
-  const order = shuffle(ws.filter(x => !aw['spell_' + x.wi]))
-    .concat(shuffle(ws.filter(x => aw['spell_' + x.wi])));
+  const order = shuffle(ws.filter(x => !aw[kOf(x)]))
+    .concat(shuffle(ws.filter(x => aw[kOf(x)])));
   const pick = order.slice(0, Math.min(SPELL_ROUND, order.length));
   const n = pick.length;
   const a = Math.max(1, Math.round(n * 0.3));
   const b = Math.max(1, Math.round(n * 0.3));
 
   return pick.map((x, k) => {
-    const q = { en: x.en, zh: x.zh, wi: x.wi, kind: 'type' };
+    const q = { en: x.en, zh: x.zh, wi: x.wi, qi: x.qi, kind: 'type' };
     q.kind = k < a ? 'tile' : (k < a + b ? 'gap' : 'type');
     if (!hard && q.kind === 'type') q.kind = 'gap'; // 简单模式不做整词默写
     const L = x.en.split('');
@@ -1510,7 +1658,7 @@ function buildSpellQs() {
       if (!hard) idxs = idxs.slice(1);            // 简单模式首字母直接送
       q.pieces = shuffle(idxs).map(i => ({ ch: L[i] }));
       if (hard) {
-        const pool = spellWords().filter(o => o.wi !== x.wi).map(o => o.en).join('').split('');
+        const pool = spellWords().filter(o => o.en !== x.en).map(o => o.en).join('').split('');
         const extra = shuffle(Array.from(new Set(pool))).slice(0, 2);
         q.pieces = shuffle(q.pieces.concat(extra.map(ch => ({ ch, decoy: true }))));
       }
@@ -1591,7 +1739,7 @@ const KB_ROWS = [
 ];
 
 function viewSpell() {
-  if (!data.words.length) return emptyView('✍️', '还没有单词', '去「录入」里把本周单词粘进去');
+  if (!wordPool().length) return emptyView('✍️', '还没有单词', '去「录入」里把本周单词粘进去');
   if (!state.spellQs.length) {
     state.spellQs = buildSpellQs();
     state.spellI = 0;
@@ -1609,6 +1757,7 @@ function viewSpell() {
 
   let html = '<div class="view-inner">';
   html += chapterBanner('spell');
+  html += srcChips();
   html += `<h2 class="page-title">✍️ 把这个词拼出来</h2>`;
   html += `<p class="page-hint">第 ${state.spellI + 1} / ${state.spellQs.length} 个 · ${tip}</p>`;
   html += `<div class="sp-prompt">
@@ -1669,7 +1818,7 @@ function spCheck() {
     state.spellBad = false;
     state.spellMsg = '对啦！';
     sfx('right');
-    award('spell_' + q.wi);
+    award(wordKey('spell_', q));
     speak(q.en);
     render();
     setTimeout(() => {
@@ -1737,8 +1886,8 @@ function buildListenQs() {
   const hard = levelOf() === 'hard';
   const qs = [];
 
-  data.words.forEach((w, wi) => {
-    qs.push({ kind: 'word', target: w.en, opts: hard ? optsAround(w.en, 4) : easyOpts(w.en), zh: w.zh, wi });
+  wordPool().forEach(w => {
+    qs.push({ kind: 'word', target: w.en, opts: hard ? optsAround(w.en, 4) : easyOpts(w.en), zh: w.zh, word: w });
   });
 
   data.sentences.forEach((s, si) => {
@@ -1760,13 +1909,14 @@ function buildListenQs() {
 }
 
 function viewListen() {
-  if (!data.words.length && !data.sentences.length) return emptyView('👂', '还没有内容', '去「设置」里添加句型和单词');
+  if (!wordPool().length && !data.sentences.length) return emptyView('👂', '还没有内容', '去「设置」里添加句型和单词');
   if (!state.listenQs.length) state.listenQs = shuffle(buildListenQs());
   const q = state.listenQs[state.listenI];
   if (!q) { setTimeout(() => { state.listenQs = []; state.listenI = 0; render(); }, 0); return '<div class="view-inner"></div>'; }
 
   let html = '<div class="view-inner">';
   html += chapterBanner('listen');
+  html += srcChips();
   html += `<h2 class="page-title">👂 听，城堡里传来什么？</h2>`;
   html += `<p class="page-hint">第 ${state.listenI + 1} / ${state.listenQs.length} 题</p>`;
   html += `<div class="listen-hero">
@@ -1804,7 +1954,7 @@ function listenPick(btn) {
   if (right) {
     btn.classList.add('ok');
     sfx('right');
-    award(q.kind === 'word' ? 'listen_w' + q.wi : 'listen_s' + q.si);
+    award(q.kind === 'word' ? wordKey('listen_w', q.word) : 'listen_s' + q.si);
     speak(q.target, { rate: 0.8 });
     setTimeout(() => {
       state.listenI++;
@@ -2321,10 +2471,15 @@ function switchView(name) {
     state.quest.screen = nx ? 'play' : 'map';
   }
   if (name === 'puzzle') {
-    // 点「拼句子」tab 直接进到没拼过的句子，不再先停在列表/地图页
-    if (state.puzzleIdx === null) {
-      const nx = nextPuzzleIdx(-1);
-      state.puzzleIdx = nx === null ? 0 : nx; // 全拼完就回第一句复习
+    // 点「拼句子」tab 直接进到当前组里没拼过的句子，不再先停在列表/地图页
+    state.pzGroup = pzCurGroup();
+    const done = i => !!(prog[state.kid] || { awarded: {} }).awarded['puzzle_' + i];
+    // puzzleIdx 失效（为空 / 不在当前组里）就重找组内第一句没拼过的
+    const idxOk = state.puzzleIdx !== null && groupIdx(state.pzGroup).indexOf(state.puzzleIdx) >= 0;
+    if (!idxOk) {
+      const gIdx = groupIdx(state.pzGroup);
+      const first = gIdx.find(i => !done(i));
+      state.puzzleIdx = first === undefined ? (gIdx[0] !== undefined ? gIdx[0] : null) : first;
     }
   } else {
     state.puzzleIdx = null;
@@ -2384,6 +2539,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // 拼句子
     if (act === 'pz-open') { state.puzzleIdx = +el.dataset.i; sfx('tap'); render(); return; }
     if (act === 'pz-jump') { goPuzzle(+el.dataset.i); return; }
+    if (act === 'pz-group') { goGroup(el.dataset.g); return; }
+    if (act === 'pz-nextgroup') { goGroup(pzNextGroup(pzCurGroup()) || 'week'); return; }
+
+    // 单词题词库切换：本周单词 ↔ 探险区域 220 词
+    if (act === 'src-week' || act === 'src-quest') {
+      state.wordSrc = act === 'src-quest' ? 'quest' : 'week';
+      state.fillQs = []; state.fillI = 0;
+      state.listenQs = []; state.listenI = 0;
+      state.spellQs = []; state.spellI = 0; spResetBuf();
+      sfx('tap');
+      render();
+      return;
+    }
 
     // 220 词探险
     if (act === 'q-level') { qGo(+el.dataset.r, +el.dataset.l); return; }
