@@ -150,7 +150,7 @@ const state = {
   kid: 'juicy',
   puzzleIdx: null,
   pzGroup: 'week',          // 拼句子当前组（一组一组解锁）
-  wordSrc: 'week',          // 单词题词库：week=本周单词，quest=探险区域的 220 词
+  wordSrc: 'all',           // 单词题词库：all=本周+全部220词，quest=探险区域的 220 词，week=本周单词
   fillQs: [], fillI: 0,
   listenQs: [], listenI: 0,
   spellQs: [], spellI: 0, spellBuf: [], spellUsed: [], spellGapAt: 0, spellMsg: '', spellBad: false,
@@ -212,12 +212,16 @@ function optsAround(target, n) {
   return shuffle([t].concat(picked));
 }
 
-// 简单模式的选项：本周词随机
+// 简单模式的选项：当前词库里的词随机（220 词模式下干扰项更丰富）
 function easyOpts(target) {
-  const all = data.words.map(w => w.en);
-  let pool = all.filter(x => x.toLowerCase() !== String(target).toLowerCase());
+  const seen = new Set([String(target).toLowerCase()]);
+  const pool = [];
+  wordPool().forEach(w => {
+    const e = String(w.en);
+    if (e && !seen.has(e.toLowerCase())) { seen.add(e.toLowerCase()); pool.push(e); }
+  });
   const need = 3 - pool.length;
-  if (need > 0) pool = pool.concat(filler(need, pool.concat([target])));
+  if (need > 0) filler(need, pool.concat([target])).forEach(x => pool.push(x));
   return shuffle([target].concat(shuffle(pool).slice(0, 3)));
 }
 
@@ -560,30 +564,39 @@ function pzNextGroup(g) {
   return null;
 }
 
-/* ---------- 单词题词库：本周单词 or 探险区域的 220 词 ---------- */
+/* ---------- 单词题词库：本周单词 / 探险区域的 220 词 / 全部 220 词 ---------- */
+// 全部 220 词（带 from220 标记，进度键按单词本身记，探险/全部两个模式互通）
+function all220() {
+  if (typeof RAW220 === 'undefined') return [];
+  return RAW220.map((w, i) => ({ en: w[1], zh: w[2], qi: i, from220: true }));
+}
 // 探险当前区域的词（40 词左右，跟着探险进度走）
 function questPool() {
   if (typeof RAW220 === 'undefined') return [];
   const r = state.quest.region;
-  return RAW220.filter(w => w[0] === r).map((w, i) => ({ en: w[1], zh: w[2], qi: i }));
+  const out = [];
+  RAW220.forEach((w, i) => { if (w[0] === r) out.push({ en: w[1], zh: w[2], qi: i, from220: true }); });
+  return out;
 }
 function wordPool() {
   if (state.wordSrc === 'quest') { const p = questPool(); if (p.length) return p; }
+  if (state.wordSrc === 'all') { const a = all220(); if (a.length) return data.words.concat(a); }
   return data.words;
 }
-// 进度键：本周词用 fill_w0…，探险词用 fill_wq0…（互不干扰）
+// 进度键：本周词用 fill_w0…，220 词按单词本身记（fill_wq_apple…，换词库不丢进度）
 function wordKey(prefix, w) {
-  if (w && w.qi !== undefined) return prefix + 'q' + w.qi;
+  if (w && w.from220) return prefix + 'q_' + String(w.en).toLowerCase().replace(/[^a-z]/g, '');
   return prefix + w.wi;
 }
 // 词库切换条（填空 / 听音 / 拼写 三个视图共用）
 function srcChips() {
   if (typeof RAW220 === 'undefined') return '';
   const R = (window.QUEST_REGIONS || [])[state.quest.region] || { ico: '🗺️', name: '探险' };
-  const quest = state.wordSrc === 'quest';
+  const on = k => state.wordSrc === k ? 'on' : '';
   return `<div class="src-chips">
-    <button class="src-chip ${quest ? '' : 'on'}" data-act="src-week">📖 本周单词</button>
-    <button class="src-chip ${quest ? 'on' : ''}" data-act="src-quest">🗺️ 探险 · ${esc(R.name)}</button>
+    <button class="src-chip ${on('all')}" data-act="src-all">❄️ 全部 ${all220().length} 词</button>
+    <button class="src-chip ${on('quest')}" data-act="src-quest">🗺️ 探险 · ${esc(R.name)}</button>
+    <button class="src-chip ${on('week')}" data-act="src-week">📖 本周单词</button>
   </div>`;
 }
 
@@ -2542,9 +2555,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (act === 'pz-group') { goGroup(el.dataset.g); return; }
     if (act === 'pz-nextgroup') { goGroup(pzNextGroup(pzCurGroup()) || 'week'); return; }
 
-    // 单词题词库切换：本周单词 ↔ 探险区域 220 词
-    if (act === 'src-week' || act === 'src-quest') {
-      state.wordSrc = act === 'src-quest' ? 'quest' : 'week';
+    // 单词题词库切换：全部 220 词 ↔ 探险区域 ↔ 本周单词
+    if (act === 'src-week' || act === 'src-quest' || act === 'src-all') {
+      state.wordSrc = act === 'src-quest' ? 'quest' : (act === 'src-all' ? 'all' : 'week');
       state.fillQs = []; state.fillI = 0;
       state.listenQs = []; state.listenI = 0;
       state.spellQs = []; state.spellI = 0; spResetBuf();
