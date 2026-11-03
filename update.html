@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>更新到最新版</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;min-height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB",sans-serif;
+    background:linear-gradient(170deg,#e8f6ff 0%,#cfe9fb 45%,#b9dcf5 100%);
+    color:#1f3b52;display:flex;align-items:center;justify-content:center;
+    padding:24px 18px;min-height:100vh;
+  }
+  .card{
+    width:100%;max-width:460px;background:#fff;border-radius:26px;
+    padding:30px 24px 26px;box-shadow:0 14px 40px rgba(31,59,82,.14);
+    text-align:center;
+  }
+  .ico{font-size:52px;line-height:1;margin-bottom:10px}
+  h1{font-size:21px;margin:0 0 8px;font-weight:700;letter-spacing:.5px}
+  .sub{font-size:14px;color:#6b8299;margin:0 0 22px;line-height:1.6}
+  .steps{text-align:left;background:#f4faff;border-radius:16px;padding:16px 18px;margin-bottom:20px}
+  .step{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#4a6b85;line-height:1.55;padding:5px 0}
+  .step .dot{flex:0 0 18px;font-size:15px;line-height:1.55}
+  .step.done{color:#2f9e6f}
+  .step.done .dot::after{content:""}
+  .btn{
+    display:block;width:100%;border:0;border-radius:16px;padding:16px 10px;
+    font-size:17px;font-weight:700;color:#fff;cursor:pointer;
+    background:linear-gradient(160deg,#63b8e8,#3f9fd6);
+    box-shadow:0 8px 20px rgba(63,159,214,.32);
+    font-family:inherit;
+  }
+  .btn:active{transform:translateY(1px);opacity:.92}
+  .btn[disabled]{background:#c3d6e4;box-shadow:none;cursor:default}
+  .note{margin:16px 0 0;font-size:12.5px;color:#8aa1b5;line-height:1.6}
+  .ok{color:#2f9e6f;font-weight:700}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="ico" id="ico">❄️</div>
+  <h1 id="title">更新到最新版</h1>
+  <p class="sub" id="sub">把 iPad 上的旧缓存清掉，游戏就变成最新版了。<br>孩子的星星和学习进度<strong>不会动</strong>。</p>
+
+  <div class="steps" id="steps">
+    <div class="step" id="s1"><span class="dot">1</span><span>关闭旧的离线缓存</span></div>
+    <div class="step" id="s2"><span class="dot">2</span><span>移除旧版 Service Worker</span></div>
+    <div class="step" id="s3"><span class="dot">3</span><span>打开最新版游戏</span></div>
+  </div>
+
+  <button class="btn" id="go" disabled>正在清理…</button>
+  <p class="note" id="note">只清理网页缓存，不删除孩子的进度、星星和录入的内容。</p>
+</div>
+
+<script>
+(function () {
+  var s1 = document.getElementById('s1');
+  var s2 = document.getElementById('s2');
+  var s3 = document.getElementById('s3');
+  var go = document.getElementById('go');
+  var note = document.getElementById('note');
+  var sub = document.getElementById('sub');
+  var ico = document.getElementById('ico');
+
+  function mark(el) { el.classList.add('done'); el.querySelector('.dot').textContent = '✓'; }
+
+  function finish() {
+    ico.textContent = '🎉';
+    sub.innerHTML = '缓存已经清干净啦，点下面的按钮回游戏。<br>星星和进度都还在。';
+    go.disabled = false;
+    go.textContent = '进游戏 →';
+    note.innerHTML = '<span class="ok">清理完成</span> · 只清了网页缓存，学习进度未受影响';
+  }
+
+  function goGame() {
+    mark(s3);
+    // 带时间戳跳转，绕开 iOS 的网页缓存
+    location.replace('./?fresh=' + Date.now());
+  }
+
+  go.addEventListener('click', goGame);
+
+  var cleared = 0;
+
+  // 1. 清 Cache Storage
+  var p1 = ('caches' in window)
+    ? caches.keys().then(function (keys) {
+        return Promise.all(keys.map(function (k) {
+          cleared++;
+          return caches.delete(k).catch(function () {});
+        }));
+      }).then(function () { mark(s1); }).catch(function () { mark(s1); })
+    : Promise.resolve(mark(s1));
+
+  // 2. 注销 Service Worker，并让新 SW 立刻接管
+  var p2 = ('serviceWorker' in navigator)
+    ? navigator.serviceWorker.getRegistrations().then(function (regs) {
+        return Promise.all(regs.map(function (r) { return r.unregister().catch(function () {}); }));
+      }).then(function () { mark(s2); }).catch(function () { mark(s2); })
+    : Promise.resolve(mark(s2));
+
+  Promise.all([p1, p2]).then(function () {
+    finish();
+    // 顺手把新 SW 拉起来（网络优先策略），这样以后再部署就不用清了
+    if ('serviceWorker' in navigator && location.protocol === 'https:') {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    }
+  }).catch(finish);
+})();
+</script>
+</body>
+</html>
