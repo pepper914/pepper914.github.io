@@ -117,9 +117,11 @@ function loadData() {
     const d = JSON.parse(raw);
     // 老数据没有 isDemo 字段：如果内容还是那套示例，仍然标成示例
     if (d.isDemo === undefined && d.week === '第 1 周' && Array.isArray(d.sentences)
-      && d.sentences.length === 3 && d.sentences[0] && d.sentences[0].en === 'This is my mother.') {
+      && d.sentences.length && d.sentences[0] && d.sentences[0].en === 'This is my mother.') {
       d.isDemo = true;
     }
+    // 老数据里可能被示例/录入覆盖丢了句包：自动补回（按英文去重，不会重复）
+    d.sentences = mergePackSents(d.sentences || []);
     return Object.assign(blankData(), d, { settings: Object.assign(blankData().settings, d.settings || {}) });
   } catch (e) { return blankData(); }
 }
@@ -515,6 +517,18 @@ function splitSent(line) {
 }
 
 /* ---------- 句子分组：一组一组解锁，不一次全放出来 ---------- */
+// 句包常驻底层：示例/录入/清空/导入只动「本周句型」，句包永远拼在后面（按英文去重防重复）
+function normSentKey(s) { return String((s && s.en) || '').toLowerCase().replace(/[^a-z]/g, ''); }
+function packSentsRaw() {
+  return typeof SENTENCES220 !== 'undefined' ? SENTENCES220.map(splitSent).filter(x => x && x.en) : [];
+}
+function mergePackSents(arr) {
+  const seen = new Set((arr || []).map(normSentKey));
+  return (arr || []).concat(packSentsRaw().filter(x => !seen.has(normSentKey(x))));
+}
+// 本周句数 = 没有分组标记的句子（老板录入/示例的）
+function weekSentsCount() { return data.sentences.filter(s => !s.g).length; }
+
 function sentGroups() {
   const base = [{ id: 'week', name: '本周句型', ico: '📖' }];
   if (typeof SENT_GROUPS !== 'undefined' && Array.isArray(SENT_GROUPS)) {
@@ -920,9 +934,9 @@ function castleHTML() {
 /* ---------- 顶部 ---------- */
 function paintTop() {
   $('#weekLabel').textContent = data.week || '本周';
-  const sc = data.sentences.length, wc = data.words.length;
+  const sc = weekSentsCount(), wc = data.words.length;
   $('#weekSub').textContent = (sc || wc)
-    ? `${sc} 个句型 · ${wc} 个单词` + (weekCleared() ? ' · 本周通关 🎉' : '')
+    ? `${sc} 个本周句型 · ${wc} 个单词（句包 ${data.sentences.length - sc} 句常驻）` + (weekCleared() ? ' · 通关 🎉' : '')
     : '还没有内容，点「录入」加进去';
   $$('.kid-btn').forEach(b => b.classList.toggle('active', b.dataset.kid === state.kid));
   $$('.tab').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
@@ -2426,11 +2440,12 @@ function emptyView(ico, txt, sub) {
 function demoData() {
   data.week = '第 1 周';
   data.isDemo = true;
-  data.sentences = [
+  // 示例只替换「本周句型」，220 高频词句子包常驻不丢
+  data.sentences = mergePackSents([
     { en: 'This is my mother.', zh: '这是我的妈妈。' },
     { en: 'I like apples.', zh: '我喜欢苹果。' },
     { en: 'She is a teacher.', zh: '她是一位老师。' }
-  ];
+  ]);
   data.words = [
     { en: 'mother', zh: '妈妈' }, { en: 'father', zh: '爸爸' },
     { en: 'sister', zh: '姐妹' }, { en: 'apple', zh: '苹果' },
@@ -2710,7 +2725,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     if (act === 'su-clear') {
-      data.sentences = []; data.words = [];
+      // 清空只清录入的本周内容，句子包常驻（随时能继续拼）
+      data.sentences = packSentsRaw();
+      data.words = [];
       state.puzzleIdx = null; state.fillQs = []; state.fillI = 0; state.listenQs = []; state.listenI = 0; state.talkI = 0;
       saveData(); sfx('tap'); render();
       return;
@@ -2761,7 +2778,8 @@ function saveSetup() {
   const wordLines = ($('#inpWord').value || '').split('\n').map(s => s.trim()).filter(Boolean);
 
   data.week = week;
-  data.sentences = sentLines.map(splitSent).filter(x => x && x.en);
+  // 录入的是「本周句型」，220 高频词句子包常驻不丢
+  data.sentences = mergePackSents(sentLines.map(splitSent).filter(x => x && x.en));
   data.words = wordLines.map(splitWord).filter(x => x && x.en);
   data.isDemo = false;
 
@@ -2775,7 +2793,7 @@ function saveSetup() {
   render();
   showOverlay(`<div class="overlay-emoji">✅</div>
     <h3 class="overlay-title">已保存</h3>
-    <p class="overlay-text">${data.sentences.length} 个句型 · ${data.words.length} 个单词<br>可以去玩了</p>
+    <p class="overlay-text">本周 ${weekSentsCount()} 个句型 · ${data.words.length} 个单词（220 高频词句包常驻，拼句子页直接玩）<br>可以去玩了</p>
     <button class="big-btn green" data-act="ov-close">开始玩 →</button>`);
 }
 
@@ -2806,7 +2824,7 @@ function importData() {
         const d = JSON.parse(fr.result);
         if (!d || !Array.isArray(d.sentences) || !Array.isArray(d.words)) throw new Error('格式不对');
         data.week = d.week || '本周';
-        data.sentences = d.sentences;
+        data.sentences = mergePackSents(d.sentences);
         data.words = d.words;
         data.isDemo = false;
         state.puzzleIdx = null;
@@ -2816,7 +2834,7 @@ function importData() {
         saveData();
         sfx('right');
         render();
-        showOverlay(`<div class="overlay-emoji">📥</div><h3 class="overlay-title">导入成功</h3><p class="overlay-text">${esc(data.week)}：${data.sentences.length} 句型 · ${data.words.length} 单词</p><button class="big-btn green" data-act="ov-close">开始玩 →</button>`);
+        showOverlay(`<div class="overlay-emoji">📥</div><h3 class="overlay-title">导入成功</h3><p class="overlay-text">${esc(data.week)}：本周 ${weekSentsCount()} 句型 · ${data.words.length} 单词（句包常驻）</p><button class="big-btn green" data-act="ov-close">开始玩 →</button>`);
       } catch (err) {
         showOverlay(`<div class="overlay-emoji">🙈</div><h3 class="overlay-title">导入失败</h3><p class="overlay-text">这个文件读不出来，确认是本游戏导出的 JSON</p><button class="big-btn" data-act="ov-close">知道了</button>`);
       }
