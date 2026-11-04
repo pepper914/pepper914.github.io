@@ -1257,13 +1257,16 @@ input.input:focus { outline: none; border-color: #74bdf0; }
 }
 
 .sp-speak {
-  font-size: 17px;
+  font-size: 21px;
   font-weight: 800;
-  padding: 8px 16px;
+  padding: 12px 24px;
+  min-height: 56px;
   border-radius: 999px;
   background: #eaf6ff;
   border: 3px solid #bcdcf5;
   color: #2b7fc4;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 .sp-stage {
@@ -1726,7 +1729,7 @@ body[data-view="spell"] .page-hint { margin: 0 0 6px; font-size: 13px; }
 body[data-view="spell"] .sp-prompt { margin: 2px 0 4px; }
 body[data-view="spell"] .sp-ico { font-size: 32px; }
 body[data-view="spell"] .sp-zh { font-size: 26px; }
-body[data-view="spell"] .sp-speak { padding: 6px 12px; font-size: 14px; }
+body[data-view="spell"] .sp-speak { padding: 10px 20px; font-size: 19px; min-height: 50px; }
 body[data-view="spell"] .sp-stage { padding: 4px 0; }
 body[data-view="spell"] .sp-slot {
   min-width: 42px; height: 54px; font-size: 30px;
