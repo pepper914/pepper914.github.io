@@ -500,6 +500,11 @@ function tokenize(s) {
   return (String(s).trim().match(/[A-Za-z][A-Za-z']*|[.,!?]/g) || []);
 }
 
+// 拼句子专用：标点直接粘在词后面（Hi, / Juicy.），不单独出符号卡片
+function tokenizeWords(s) {
+  return (String(s).trim().match(/[A-Za-z][A-Za-z']*[.,!?]*/g) || []);
+}
+
 // 拆分 "英文 | 中文"，支持前缀 "@组ID|"（220 句包的分组标记）
 function splitSent(line) {
   let g = '';
@@ -1064,9 +1069,7 @@ function viewPuzzle() {
   if (state.puzzleIdx === null) return viewPuzzleList();
 
   const s = data.sentences[state.puzzleIdx];
-  const toks = tokenize(s.en);
-  const last = toks[toks.length - 1] || '';
-  const tail = /^[.,!?]$/.test(last) ? last : '';
+  const toks = tokenizeWords(s.en);
 
   let html = '<div class="view-inner">';
   html += chapterBanner('puzzle');
@@ -1093,14 +1096,10 @@ function viewPuzzle() {
       `<button class="pz-dot ${i === state.puzzleIdx ? 'cur' : ''} ${aw['puzzle_' + i] ? 'done' : ''}" data-act="pz-jump" data-i="${i}" aria-label="第${i + 1}句"></button>`).join('')}</span></div>`;
   html += `<p class="page-hint">${esc(s.zh || '点下面的单词卡片，按顺序放进上面的方框')}</p>`;
   if (levelOf() === 'hard') {
-    const wordsN = tail ? toks.length - 1 : toks.length;
-    const extraN = wordsN >= 4 ? 2 : 1;
+    const extraN = toks.length >= 4 ? 2 : 1;
     html += `<p class="page-hint hard-tip">⚠️ 卡片比空格多，有 ${extraN} 张是用不上的</p>`;
   }
   html += `<div class="slots-row" id="slots"></div>`;
-  if (tail) {
-    html += `<p class="page-hint" style="text-align:center;margin:-6px 0 14px">句尾的「${esc(tail)}」已经帮你放好啦</p>`;
-  }
   html += `<div class="cards-row" id="cards"></div>`;
   html += `<div class="puzzle-bar">
       <button class="big-btn ghost" data-act="pz-hint">💡 提示</button>
@@ -1147,9 +1146,8 @@ function viewPuzzleList() {
 
 function puzzleState() {
   const s = data.sentences[state.puzzleIdx];
-  const toks = tokenize(s.en);
-  const tail = /[.,!?]/.test(toks[toks.length - 1]) ? toks[toks.length - 1] : '';
-  const words = tail ? toks.slice(0, -1) : toks;
+  // 标点粘在词后面，不单独出卡片（juicy 只管词，不管符号）
+  const words = tokenizeWords(s.en);
   let pieces;
   if (levelOf() === 'hard') {
     // 进阶：混入多余卡片，卡片数 > 空格数

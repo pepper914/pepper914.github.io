@@ -2,7 +2,7 @@
    改代码后把 CACHE 里的版本号 +1（eg-v2、eg-v3…）才会让 iPad 上的 PWA 拿到新版
    策略：网络优先（有网就拿最新版并顺手更新缓存），断网才回落缓存 → 离线也能玩
    这样每次部署，孩子下次打开就是新版，不用再手动清缓存 */
-const CACHE = 'eg-v9';
+const CACHE = 'eg-v10';
 const ASSETS = [
   './',
   './index.html',
