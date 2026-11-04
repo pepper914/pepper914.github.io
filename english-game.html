@@ -1820,6 +1820,135 @@ body[data-view="spell"] .src-chips { margin: 0 0 4px; }
 .sent-group-h.lock { color: #a8b6c0; }
 .sent-card.lock { opacity: .55; cursor: default; }
 
+/* ===== 跟读 · 回声冰谷（第 5 章） ===== */
+body[data-view="say"] #view { background: linear-gradient(180deg, #dcefff 0%, #f2f9ff 40%, #e6f3ff 100%); }
+body[data-view="say"] .chapter-banner { background: linear-gradient(90deg, #b9e0ff, #e6f5ff); }
+
+.say-card {
+  margin: 6px auto 14px;
+  max-width: 620px;
+  padding: 22px 18px 20px;
+  text-align: center;
+  border-radius: 22px;
+  background: linear-gradient(160deg, #ffffff 0%, #f0f9ff 55%, #e2f2ff 100%);
+  border: 2px solid #cfe9ff;
+  box-shadow: 0 8px 24px rgba(120, 180, 230, .18), inset 0 1px 0 #fff;
+  position: relative;
+  overflow: hidden;
+}
+.say-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,.9) 0 2px, transparent 3px),
+    radial-gradient(circle at 82% 26%, rgba(210,235,255,.9) 0 2px, transparent 3px),
+    radial-gradient(circle at 68% 78%, rgba(255,255,255,.8) 0 1px, transparent 2px);
+  pointer-events: none;
+}
+.say-ico { font-size: 34px; line-height: 1; margin-bottom: 8px; }
+.say-en {
+  font-size: clamp(26px, 5.2vw, 40px);
+  font-weight: 800;
+  letter-spacing: .3px;
+  color: #1d4a6e;
+  line-height: 1.28;
+  word-break: break-word;
+}
+.say-zh { margin-top: 10px; font-size: 16px; color: #6e8ba6; }
+
+.say-actions {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin: 4px 0 12px;
+}
+.say-actions .big-btn { min-width: 150px; }
+
+.say-mic.rec {
+  background: linear-gradient(180deg, #ff8fb0, #f7628c) !important;
+  box-shadow: 0 0 0 0 rgba(247, 98, 140, .55);
+  animation: sayPulse 1.2s infinite;
+}
+@keyframes sayPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(247, 98, 140, .55); }
+  70%  { box-shadow: 0 0 0 14px rgba(247, 98, 140, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(247, 98, 140, 0); }
+}
+
+.say-hear {
+  text-align: center;
+  min-height: 30px;
+  margin: 0 auto 10px;
+  font-size: 15px;
+  color: #4a7ba3;
+}
+.say-hear.hidden { display: none; }
+
+.say-rate {
+  margin: 0 auto 14px;
+  max-width: 620px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.75);
+  border: 1px dashed #bcdcf5;
+  text-align: center;
+}
+.say-rate-t { margin: 0 0 10px; font-size: 14px; color: #557a99; }
+.say-rate-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.rate-btn {
+  border: 2px solid #cfe6f8;
+  background: #fff;
+  color: #2c5b7e;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform .12s, box-shadow .12s, border-color .12s;
+}
+.rate-btn:hover { border-color: #9fd0f0; box-shadow: 0 4px 12px rgba(120,180,230,.22); }
+.rate-btn:active { transform: scale(.95); }
+.rate-btn.good { background: linear-gradient(180deg, #e9fff4, #d6f7e6); border-color: #a9e6c6; }
+
+.say-nav { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+
+/* 静音开关提示 */
+.sound-tip {
+  margin: 10px auto 4px;
+  text-align: center;
+  font-size: 13px;
+  color: #93a9bd;
+  max-width: 560px;
+}
+
+/* 轻提示条 */
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 106px;
+  transform: translate(-50%, 16px);
+  max-width: min(88vw, 560px);
+  padding: 12px 18px;
+  border-radius: 16px;
+  background: rgba(28, 52, 74, .93);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s, transform .22s;
+  z-index: 9999;
+  box-shadow: 0 10px 28px rgba(20, 40, 60, .3);
+}
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* 8 个 tab 了：窄屏缩小一点，别挤成一团 */
+@media (max-width: 560px) {
+  .tabbar .tab-ico { font-size: 20px; }
+  .tabbar .tab-txt { font-size: 11px; }
+  .tabbar .tab { padding: 8px 0; }
+  #toast { bottom: 96px; font-size: 13px; }
+}
+
 </style>
 </head>
 <body>
@@ -1855,6 +1984,7 @@ body[data-view="spell"] .src-chips { margin: 0 0 4px; }
     <button class="tab" data-view="spell"><span class="tab-ico">✍️</span><span class="tab-txt">拼写</span></button>
     <button class="tab" data-view="fill"><span class="tab-ico">🕳️</span><span class="tab-txt">填空</span></button>
     <button class="tab" data-view="listen"><span class="tab-ico">👂</span><span class="tab-txt">听音</span></button>
+    <button class="tab" data-view="say"><span class="tab-ico">🎤</span><span class="tab-txt">开口</span></button>
     <button class="tab" data-view="talk"><span class="tab-ico">💬</span><span class="tab-txt">对话</span></button>
     <button class="tab" data-view="setup"><span class="tab-ico">✏️</span><span class="tab-txt">录入</span></button>
   </nav>
@@ -2561,6 +2691,7 @@ const state = {
   listenQs: [], listenI: 0,
   spellQs: [], spellI: 0, spellBuf: [], spellUsed: [], spellGapAt: 0, spellMsg: '', spellBad: false,
   talkI: 0,
+  sayQs: [], sayI: 0,       // 跟读：这一轮的句子下标 + 说到第几句
   recording: false,
   mapOpen: false,
   // 220 词探险：region = 区域 0-4，level = 区域内第几关，mode = 玩法轮到第几种
@@ -3058,20 +3189,112 @@ if ('speechSynthesis' in window) {
   pickVoice();
 }
 
+let speakTimer = null;
+let speakSeq = 0;
+let speechPrimed = false;   // 语音引擎有没有在用户手势里被唤醒过（iOS 必须）
 function speak(text, opts) {
   opts = opts || {};
-  if (!('speechSynthesis' in window)) return;
+  const plain = String(text == null ? '' : text).trim();
+  if (!plain) { if (opts.onerror) opts.onerror(); return; }
+  if (!('speechSynthesis' in window)) { if (opts.onerror) opts.onerror(); return; }
+
+  const seq = ++speakSeq;   // 新的一次朗读作废掉之前的所有回调
+
+  const fire = isRetry => {
+    if (seq !== speakSeq) return;   // 已经被更新的朗读取代了
+    let started = false;
+    try {
+      const u = new SpeechSynthesisUtterance(plain);
+      u.lang = 'en-US';
+      u.rate = opts.rate || (data.settings.rate || 0.85);
+      u.pitch = 1.05;
+      const v = pickVoice();
+      if (v) u.voice = v;
+      u.onstart = () => { started = true; if (opts.onstart) opts.onstart(); };
+      u.onend = () => { if (opts.onend) opts.onend(); };
+      u.onerror = () => { if (opts.onerror) opts.onerror(); };
+      speechSynthesis.speak(u);
+    } catch (e) {
+      if (opts.onerror) opts.onerror();
+      return;
+    }
+    // 兜底自愈：1.2 秒还没开口（iOS 上偶发静默吞掉）就重来一次，只重试一次
+    if (!isRetry) {
+      setTimeout(() => {
+        if (started || seq !== speakSeq) return;
+        try { speechSynthesis.cancel(); } catch (e) {}
+        if (!speechPrimed) { fire(true); return; }
+        setTimeout(() => fire(true), 90);
+      }, 1200);
+    }
+  };
+
+  if (!userActed) {
+    // 还没人点过页面（比如刚打开就自动念题）：异步说，避免和 onend 回调套成死循环
+    setTimeout(() => fire(false), 0);
+    return;
+  }
+  if (!speechPrimed) {
+    // 第一次真人点击时引擎还没被唤醒：在这一次手势里同步开口，不先 cancel
+    fire(false);
+    return;
+  }
+  // 之后：先打断旧的，隔一拍再开口，这是 iOS 上唯一稳的顺序
+  try { speechSynthesis.cancel(); } catch (e) {}
+  clearTimeout(speakTimer);
+  speakTimer = setTimeout(() => fire(false), 90);
+}
+
+// 判断引擎有没有真的"开口"：iOS 静默失败时 onstart 永远不触发（比查 speaking 可靠，
+// 短句 1 秒就播完，查 speaking 会误报）。
+function speakCheck(text, opts, onDead) {
+  let started = false;
+  const o = Object.assign({}, opts || {}, { onstart: () => { started = true; } });
+  speak(text, o);
+  setTimeout(() => { if (!started && onDead) onDead(); }, 1600);
+}
+
+/* 录音回放：iOS 上 onstop 回调里 new Audio().play() 常常被拦（不在手势里）。
+   用一个常驻 player 元素，第一次点击时先"解锁"，之后换 src 就能播。 */
+let playerEl = null;
+function ensurePlayer() {
+  if (!playerEl || !playerEl.isConnected) {
+    playerEl = document.getElementById('recPlayer');
+    if (!playerEl) {
+      playerEl = document.createElement('audio');
+      playerEl.id = 'recPlayer';
+      playerEl.setAttribute('playsinline', '');
+      playerEl.preload = 'auto';
+      document.body.appendChild(playerEl);
+    }
+  }
+  return playerEl;
+}
+function playUrl(url, onFail) {
+  if (!url) { onFail && onFail(); return; }
+  const a = ensurePlayer();
   try {
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'en-US';
-    u.rate = opts.rate || (data.settings.rate || 0.85);
-    u.pitch = 1.05;
-    const v = pickVoice();
-    if (v) u.voice = v;
-    if (opts.onend) u.onend = opts.onend;
-    speechSynthesis.speak(u);
-  } catch (e) {}
+    a.pause();
+    a.src = url;
+    try { a.currentTime = 0; } catch (e) {}
+    const p = a.play();
+    if (p && p.catch) p.catch(() => { onFail && onFail(); });
+  } catch (e) { onFail && onFail(); }
+}
+
+/* 轻提示（替代 alert，不打断玩） */
+let toastTimer = null;
+function toast(msg, ms) {
+  let el = document.getElementById('toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('on'), ms || 2800);
 }
 
 function shutUp() {
@@ -3102,19 +3325,32 @@ function sfx(type) {
 
 /* iOS 上语音引擎必须在用户手势里先"碰"一次，否则后面自动朗读会没声音 */
 let unlocked = false;
+let userActed = false;   // 页面里已经有过真实点击：之后从定时器里说话才安全
 function unlockSpeech() {
   if (unlocked) return;
   unlocked = true;
+  userActed = true;
   try {
     AC = AC || new (window.AudioContext || window.webkitAudioContext)();
     if (AC.state === 'suspended') AC.resume();
   } catch (e) {}
+  // 先"解锁"常驻播放器：iOS 只允许在手势里启动音频，
+  // 解锁后录音回放（在 onstop 回调里）才播得出来
+  try {
+    const a = ensurePlayer();
+    a.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAgD4AAIA+AAABAAgAZGF0YQQAAAAAAA==';
+    const p = a.play();
+    if (p && p.catch) p.catch(() => {});
+    setTimeout(() => { try { a.pause(); a.removeAttribute('src'); } catch (e) {} }, 400);
+  } catch (e) {}
+  // 语音引擎也要在手势里"开一次口"，之后从定时器里说话才不会被 iOS 吞掉
   if ('speechSynthesis' in window) {
     try {
       const u = new SpeechSynthesisUtterance(' ');
       u.volume = 0;
       u.lang = 'en-US';
       speechSynthesis.speak(u);
+      speechPrimed = true;
     } catch (e) {}
   }
 }
@@ -3185,6 +3421,8 @@ function chapterDone(k) {
     && data.words.length > 0 && data.words.every((_, i) => p['fill_w' + i]);
   if (k === 'listen') return (data.sentences.every((_, i) => p['listen_s' + i]) || !data.sentences.length)
     && data.words.length > 0 && data.words.every((_, i) => p['listen_w' + i]);
+  // 跟读：说过 16 句就算这一章通过（不是 243 句全说完，太重）
+  if (k === 'say') return saySaidCount() >= 16;
   return false;
 }
 
@@ -3245,13 +3483,18 @@ const STORY = {
     text: '城堡深处的回声长廊里，藏着打开大门的声音。竖起耳朵——四个回声里只有一个是真的！',
     short: '听出真正的回声'
   },
+  say: {
+    n: 5, ico: '🎤', shard: '🔔', title: '回声冰谷',
+    text: '冰谷里的回声只会学人说话——你得亲口把句子说出来，回声才会让开一条路。',
+    short: '大声说出整句'
+  },
   talk: {
-    n: 5, ico: '🏰', shard: '🌸', title: '你和爱莎的演出',
+    n: 6, ico: '🏰', shard: '🌸', title: '你和爱莎的演出',
     text: '最后一关！和爱莎把今天的句子一句一句聊完，城堡的冰雪就会全部融化，春天就回来了！',
     short: '和爱莎聊完这一场'
   }
 };
-const STORY_ORDER = ['puzzle', 'spell', 'fill', 'listen', 'talk'];
+const STORY_ORDER = ['puzzle', 'spell', 'fill', 'listen', 'say', 'talk'];
 
 function chapterUnlocked(k) {
   const i = STORY_ORDER.indexOf(k);
@@ -4414,6 +4657,190 @@ function showListenFinish() {
 }
 
 /* =========================================================
+   视图：跟读 · 回声冰谷（第 5 章）
+   听 → 说 → 听自己的回声。
+   铁律：不判分、不扣分、随时能换一句；没录也给过，只是星星不亮。
+   ========================================================= */
+const SAY_ROUND = 8;          // 一轮 8 句，孩子坐得住
+const SAY_MIN_DONE = 16;      // 说出口 16 句算这一章通过
+
+// 说过多少句（进度键 say_s<句号>）
+function saySaidCount() {
+  const aw = (prog[state.kid] || { awarded: {} }).awarded || {};
+  return Object.keys(aw).filter(k => k.indexOf('say_s') === 0).length;
+}
+
+// 优先练当前拼句子那一组的句子（跟正在学的内容对齐），组里没句子就用全部
+function sayScope() {
+  const all = data.sentences.map((s, i) => i).filter(i => data.sentences[i] && data.sentences[i].en);
+  let gi = [];
+  try { gi = groupIdx(pzCurGroup()).filter(i => data.sentences[i] && data.sentences[i].en); } catch (e) {}
+  return gi.length ? gi : all;
+}
+
+function sayQueue() {
+  const aw = (prog[state.kid] || { awarded: {} }).awarded || {};
+  const scope = sayScope();
+  let left = scope.filter(i => !aw['say_s' + i]);
+  if (!left.length) left = scope.slice();   // 都说过了：从头再练一遍
+  return shuffle(left).slice(0, SAY_ROUND);
+}
+
+let sayRec = null, sayStream = null, sayChunks = [], sayUrl = null, sayQuiet = false, sayAutoStop = null;
+
+function viewSay() {
+  if (!data.sentences.length) return emptyView('🎤', '还没有句子', '去「录入」里把本周句型粘进去');
+  if (!state.sayQs.length) state.sayQs = sayQueue();
+  const si = state.sayQs[state.sayI];
+  const s = si === undefined ? null : data.sentences[si];
+  if (!s) { state.sayQs = []; state.sayI = 0; return '<div class="view-inner"></div>'; }
+
+  const aw = (prog[state.kid] || { awarded: {} }).awarded || {};
+  const said = state.sayQs.filter(i => aw['say_s' + i]).length;
+
+  let html = '<div class="view-inner">';
+  html += chapterBanner('say');
+  html += `<h2 class="page-title">🎤 回声冰谷</h2>`;
+  html += `<p class="page-hint">这一轮第 ${state.sayI + 1} / ${state.sayQs.length} 句 · 已经说出口 ${said} 句</p>`;
+
+  html += `<div class="say-card">
+      <div class="say-ico">🔔</div>
+      <div class="say-en">${esc(s.en)}</div>
+      ${s.zh ? `<div class="say-zh">${esc(s.zh)}</div>` : ''}
+    </div>`;
+
+  html += `<div class="say-actions">
+      <button class="big-btn blue" data-act="say-play">🔊 听一遍</button>
+      <button class="big-btn pink say-mic ${state.recording ? 'rec' : ''}" data-act="say-mic">
+        ${state.recording ? '⏹ 说完了' : '🎤 我来说'}
+      </button>
+    </div>`;
+
+  const hearTxt = state.recording
+    ? '🎙️ 在听你说…说完点 ⏹'
+    : (sayUrl ? '✅ 这是你说的！<button class="mini-btn" data-act="say-hear">🔊 再听一遍</button>'
+      : '先 🔊 听一遍，再 🎤 大声说出来');
+  html += `<div id="sayHear" class="say-hear">${hearTxt}</div>`;
+
+  if (sayUrl && !state.recording) {
+    html += `<div class="say-rate">
+        <p class="say-rate-t">说得怎么样？（自己听、自己判断，说错了也没关系）</p>
+        <div class="say-rate-btns">
+          <button class="rate-btn good" data-act="say-ok">😀 很清楚</button>
+          <button class="rate-btn" data-act="say-ok">🙂 说出来了</button>
+          <button class="rate-btn" data-act="say-again">🔁 再录一次</button>
+        </div>
+      </div>`;
+  }
+
+  html += `<div class="say-nav">
+      <button class="big-btn green" data-act="say-next">${state.sayI + 1 >= state.sayQs.length ? '✅ 这一轮说完了 →' : '下一句 →'}</button>
+      <button class="big-btn ghost" data-act="say-skip">🔀 换一句</button>
+    </div>`;
+
+  html += `<div class="progress-dots">`;
+  state.sayQs.forEach((i, k) => {
+    const cls = aw['say_s' + i] ? 'done' : (k === state.sayI ? 'on' : '');
+    html += `<div class="dot ${cls}"></div>`;
+  });
+  html += `</div>`;
+  html += `<p class="sound-tip">🔇 没声音？看看 iPad 侧边的静音开关是不是拨上去了，音量调大一点</p>`;
+  html += `</div>`;
+  return html;
+}
+
+/* 录音：点一下开始，再点一下结束，结束自动回放自己的声音 */
+function sayToggleRec() {
+  const si = state.sayQs[state.sayI];
+  const s = (si !== undefined && data.sentences[si]) || { en: '' };
+
+  // 正在录 → 停
+  if (state.recording) {
+    clearTimeout(sayAutoStop);
+    if (sayRec && sayRec.state === 'recording') { try { sayRec.stop(); } catch (e) {} return; }
+    // 状态卡住自愈
+    state.recording = false; sayRec = null; render(); return;
+  }
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+    if (s.en) speak(s.en, { rate: 0.7 });
+    toast('这台设备不能录音，先听我读，你跟着大声说', 4200);
+    return;
+  }
+
+  state.recording = true;
+  render();
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    sayStream = stream; sayChunks = [];
+    sayRec = new MediaRecorder(stream);
+    sayRec.ondataavailable = e => { if (e.data && e.data.size) sayChunks.push(e.data); };
+    sayRec.onstop = () => {
+      try { sayStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+      let blob = null;
+      try { blob = new Blob(sayChunks, { type: (sayRec && sayRec.mimeType) || 'audio/mp4' }); } catch (e) {}
+      state.recording = false;
+      if (sayUrl) { try { URL.revokeObjectURL(sayUrl); } catch (e) {} }
+      sayUrl = (blob && blob.size) ? URL.createObjectURL(blob) : null;
+      if (sayQuiet) { sayQuiet = false; return; }   // 切走了，别回放
+      render();
+      if (sayUrl) {
+        playUrl(sayUrl, () => toast('点了「再听一遍」听听看（系统可能拦了自动播放）', 3600));
+        sfx('right');
+      } else {
+        toast('这次没录到声音，再点 🎤 试一次（凑近一点说）', 3600);
+      }
+    };
+    sayRec.start();
+    // 孩子忘了按停止 → 15 秒自己停，别让麦克风一直开着
+    clearTimeout(sayAutoStop);
+    sayAutoStop = setTimeout(() => {
+      if (state.recording && sayRec && sayRec.state === 'recording') {
+        try { sayRec.stop(); } catch (e) {}
+        toast('说得差不多啦，我先停下来 ✅', 2200);
+      }
+    }, 15000);
+    const el = $('#sayHear');
+    if (el) el.textContent = '🎙️ 在听你说…说完点 ⏹';
+  }).catch(err => {
+    state.recording = false;
+    render();
+    micFailHint(err, s);
+  });
+}
+
+function stopSayRec() {
+  sayQuiet = true;
+  clearTimeout(sayAutoStop);
+  try { if (sayStream) sayStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+  try { if (sayRec && sayRec.state === 'recording') sayRec.stop(); } catch (e) {}
+  state.recording = false;
+}
+
+/* 前进：withStar = 真的录过音才给星星 */
+function sayAdvance(withStar) {
+  const si = state.sayQs[state.sayI];
+  if (withStar && si !== undefined) award('say_s' + si);
+  sayUrl = null;
+  state.sayI++;
+  if (state.sayI >= state.sayQs.length) {
+    const n = state.sayQs.length;
+    state.sayQs = []; state.sayI = 0;
+    sfx('win'); confetti();
+    const justDone = state.chapterJustDone === 'say';
+    if (justDone) state.chapterJustDone = null;
+    render();
+    if (justDone) { chapterClear('say'); return; }
+    showOverlay(`<div class="overlay-emoji">🔔</div>
+      <h3 class="overlay-title">回声记住你的声音了！</h3>
+      <p class="overlay-text">这一轮 ${n} 句说完了<br>累计说出口 <b>${saySaidCount()}</b> 句${saySaidCount() >= SAY_MIN_DONE ? '' : `，说满 ${SAY_MIN_DONE} 句这一章就通过`}</p>
+      <button class="big-btn green" data-act="say-restart">再来一轮 →</button>`);
+    return;
+  }
+  sfx('tap');
+  render();
+}
+
+/* =========================================================
    视图：语音对话 / 跟读
    ========================================================= */
 // 把本周句型编成「爱莎 ⇄ 女儿」的剧本：问句给爱莎，答句/陈述句给女儿
@@ -4441,6 +4868,7 @@ function viewTalk() {
   html += chapterBanner('talk');
   html += `<h2 class="page-title">${ROLES.elsa.name} 和 ${kidName()} 聊天</h2>`;
   html += `<p class="page-hint">爱莎说一句，你接一句 —— 一句一句往下聊</p>`;
+  html += `<p class="sound-tip">🔇 没声音？看看 iPad 侧边的静音开关是不是拨上去了，音量调大一点</p>`;
 
   // 两个人的头像：爱莎 / 女儿（可换成孩子自己的照片）
   html += `<div class="duo">
@@ -4577,26 +5005,35 @@ function startRecog(cb) {
 }
 
 /* 录音跟读：录下孩子自己的声音，说完自动回放（不判分，保护积极性） */
-let talkRec = null, talkChunks = [], talkStream = null, talkRecUrl = null;
+let talkRec = null, talkChunks = [], talkStream = null, talkRecUrl = null, talkAutoStop = null;
 
 function talkMic() {
-  const s = data.sentences[state.talkI];
-  const heard = $('#heard');
-  if (!heard) return;
-
+  const s = talkLine();
   // 识别打分模式（录入页里手动打开）
-  if (data.settings.recog) { talkMicRecog(s, heard); return; }
+  if (data.settings.recog) { talkMicRecog(s); return; }
 
-  // 正在录音 → 这次点击 = 停止并回放
-  if (state.recording) { try { talkRec && talkRec.stop(); } catch (e) {} return; }
+  // 上一次的状态卡住了？先自愈再往下走，别让点击沉进海里
+  if (state.recording) {
+    if (talkRec && talkRec.state === 'recording') {
+      try { talkRec.stop(); } catch (e) {}
+      return;
+    }
+    // state 是 true 但录音器早停了（被系统打断 / 中途切页面）→ 重置，继续开新的一段
+    state.recording = false;
+    try { if (talkStream) talkStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+    talkRec = null;
+  }
 
-  // 设备不支持录音 → 退回"机器示范+跟读"
-  if (!navigator.mediaDevices || !window.MediaRecorder) {
-    speak(s.en, { rate: 0.75 });
-    heard.classList.remove('hidden', 'bad');
-    heard.textContent = '🔊 先听一遍，然后你来说';
+  // 设备不支持录音 → 退回"机器示范+跟读"，并说清楚为什么
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+    sayFallback(s, '这台设备（或这个浏览器）不能录音，先听我读，你跟着大声说');
     return;
   }
+
+  // 先给可见反馈，不然 iOS 弹权限框那两秒看起来就是"点了没反应"
+  state.recording = true;
+  heardTip('🎙️ 正在打开麦克风…');
+  render();
 
   navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
     talkStream = stream;
@@ -4605,40 +5042,109 @@ function talkMic() {
     talkRec.ondataavailable = e => { if (e.data && e.data.size) talkChunks.push(e.data); };
     talkRec.onstop = () => {
       try { talkStream.getTracks().forEach(t => t.stop()); } catch (e) {}
-      const blob = new Blob(talkChunks, { type: talkRec.mimeType || 'audio/mp4' });
-      if (talkRecUrl) { try { URL.revokeObjectURL(talkRecUrl); } catch (e) {} }
-      talkRecUrl = URL.createObjectURL(blob);
+      let blob = null;
+      try { blob = new Blob(talkChunks, { type: (talkRec && talkRec.mimeType) || 'audio/mp4' }); } catch (e) {}
       state.recording = false;
-      render();
-      const el = $('#heard');
       const silent = talkRecSilent;
       talkRecSilent = false;
+      if (blob && blob.size) {
+        if (talkRecUrl) { try { URL.revokeObjectURL(talkRecUrl); } catch (e) {} }
+        talkRecUrl = URL.createObjectURL(blob);
+      }
+      render();
+      const el = $('#heard');
       if (el && !silent) {
         el.classList.remove('hidden', 'bad');
-        el.innerHTML = '✅ 录好啦！听听你自己的声音 <button class="mini-btn" data-act="tk-hear">🔊 再听一遍</button>';
+        el.innerHTML = talkRecUrl
+          ? '✅ 录好啦！听听你自己的声音 <button class="mini-btn" data-act="tk-hear">🔊 再听一遍</button>'
+          : '🎤 这次没录到声音，再点一次 🎤 试试（凑近一点说）';
       }
-      if (!silent) {
-        const au = new Audio(talkRecUrl);
-        au.play().catch(() => {});
+      if (!silent && talkRecUrl) {
+        playUrl(talkRecUrl);
         sfx('right');
       }
     };
+    talkRec.onerror = () => {
+      state.recording = false;
+      render();
+      sayFallback(s, '录音出错了，先听我读，你跟着大声说');
+    };
     talkRec.start();
-    state.recording = true;
-    render();
+    // 忘了按停止 → 15 秒自己停，别让麦克风一直开着（也是「后面再点没反应」的根源）
+    clearTimeout(talkAutoStop);
+    talkAutoStop = setTimeout(() => {
+      if (state.recording && talkRec && talkRec.state === 'recording') {
+        try { talkRec.stop(); } catch (e) {}
+        toast('说得差不多啦，我先停下来 ✅', 2200);
+      }
+    }, 15000);
+    // 上面已经设过 state.recording = true，这里只补文字
     const el = $('#heard');
     if (el) { el.classList.remove('hidden', 'bad'); el.textContent = '🎙️ 在听你说…说完再点一下 ⏹'; }
-  }).catch(() => {
-    // 没给麦克风权限：退回跟读
-    speak(s.en, { rate: 0.75 });
-    heard.classList.remove('hidden', 'bad');
-    heard.textContent = '🎤 录音没打开，先听我读，你大声跟着说';
+  }).catch(err => {
+    // 没给麦克风权限 / 被别的 App 占着 → 明确告诉孩子和家长怎么办
+    state.recording = false;
+    render();
+    micFailHint(err, s);
   });
+}
+
+/* 当前这句的对象（对话页每次重新算，避免拿错/拿到 undefined） */
+function talkLine() {
+  const list = scriptLines();
+  const l = list[state.talkI];
+  if (l) return l;
+  const s = data.sentences[state.talkI];
+  return s ? { en: s.en, zh: s.zh, who: 'kid' } : { en: '', zh: '', who: 'kid' };
+}
+
+/* 把提示写进对话页的提示条；提示条不在就直接用 toast，绝不静默 */
+function heardTip(msg) {
+  const el = $('#heard');
+  if (el) { el.classList.remove('hidden', 'bad'); el.textContent = msg; return true; }
+  toast(msg);
+  return false;
+}
+
+/* 不能录音时：机器读一遍 + 引导孩子跟着说 */
+function sayFallback(s, msg) {
+  if (s && s.en) speak(s.en, { rate: 0.75 });
+  heardTip('🔊 ' + msg);
+  toast(msg, 3600);
+}
+
+/* 麦克风失败的分类提示 —— iOS 上失败原因差别很大，说清楚才救得回来 */
+function micFailHint(err, s) {
+  const name = (err && err.name) || '';
+  const standalone = isStandalone();
+  let msg;
+  if (name === 'NotAllowedError' || name === 'SecurityError') {
+    msg = standalone
+      ? '麦克风被拒绝了。主屏图标打开的 App 常常拿不到麦克风：请用 Safari 打开本页再试，或在 设置 → Safari → 麦克风 里允许'
+      : '麦克风被拒绝了。点地址栏左边的「aA」→ 网站设置 → 麦克风 → 允许，再点一次 🎤';
+  } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+    msg = '没找到麦克风，检查一下设备有没有麦克风再试';
+  } else if (name === 'NotReadableError' || name === 'TrackStartError') {
+    msg = '麦克风被别的 App 占着（比如正在通话/录音），关掉它再点 🎤';
+  } else {
+    msg = '麦克风没打开成功' + (name ? `（${name}）` : '') + '，先用 🔊 听，再大声跟着说';
+  }
+  if (s && s.en) speak(s.en, { rate: 0.75 });
+  heardTip('🎤 ' + msg);
+  toast(msg, 6000);
+}
+
+/* 是不是从主屏图标打开的（PWA 里麦克风限制更多） */
+function isStandalone() {
+  try {
+    return !!(window.navigator.standalone || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches));
+  } catch (e) { return false; }
 }
 
 /* 停止正在进行的录音/识别（切句、换人时用）——静默停止，不回放 */
 let talkRecSilent = false;
 function stopTalkRec() {
+  clearTimeout(talkAutoStop);
   if (state.recording) {
     state.recording = false;
     talkRecSilent = true;
@@ -4648,7 +5154,7 @@ function stopTalkRec() {
 }
 
 /* 识别打分模式的对话麦克风（原来那套逻辑） */
-function talkMicRecog(s, heard) {
+function talkMicRecog(s) {
   if (state.recording) {
     try { recogObj && recogObj.stop(); } catch (e) {}
     state.recording = false;
@@ -4660,8 +5166,14 @@ function talkMicRecog(s, heard) {
   render();
   const btn = document.querySelector('.mic-btn');
   btn && btn.classList.add('recording');
-  heard.classList.remove('hidden', 'bad');
-  heard.textContent = '🎙️ 在听你说…';
+  heardTip('🎙️ 在听你说…');
+  if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+    state.recording = false;
+    data.settings.recog = false;
+    render();
+    sayFallback(s, '这台设备不支持听写打分，已切回跟读模式');
+    return;
+  }
 
   startRecog((text, err) => {
     state.recording = false;
@@ -4696,12 +5208,12 @@ function talkMicRecog(s, heard) {
 }
 
 function talkDone() {
-  const s = data.sentences[state.talkI];
+  const l = talkLine();
   stopTalkRec();
   if (!data.settings.recog) {
     award('talk_' + state.talkI);   // 跟读模式：读完即记
   }
-  speak(s.en, { rate: 0.8 });
+  if (l.en) speak(l.en, { rate: 0.8 });
   sfx('tap');
   state.talkI++;
   if (state.talkI >= data.sentences.length) {
@@ -4865,7 +5377,7 @@ function demoData() {
 function render() {
   document.body.dataset.view = state.view; // 每章换场景配色
   const v = $('#view');
-  const map = { quest: viewQuest, puzzle: viewPuzzle, spell: viewSpell, fill: viewFill, listen: viewListen, talk: viewTalk, setup: viewSetup };
+  const map = { quest: viewQuest, puzzle: viewPuzzle, spell: viewSpell, fill: viewFill, listen: viewListen, say: viewSay, talk: viewTalk, setup: viewSetup };
   v.innerHTML = (map[state.view] || viewPuzzle)();
   v.scrollTop = 0;
   paintTop();
@@ -4891,11 +5403,15 @@ function render() {
 
 function switchView(name) {
   shutUp();
+  // 离开跟读/对话前先把麦克风关掉，别让录音在后台一直开着
+  if (state.view === 'say' && name !== 'say') stopSayRec();
+  if (state.view === 'talk' && name !== 'talk') stopTalkRec();
   state.view = name;
   if (name === 'fill') { state.fillQs = []; state.fillI = 0; }
   if (name === 'listen') { state.listenQs = []; state.listenI = 0; }
   if (name === 'spell') { state.spellQs = []; state.spellI = 0; spResetBuf(); }
   if (name === 'talk') { state.talkI = 0; }
+  if (name === 'say') { state.sayQs = []; state.sayI = 0; sayUrl = null; }
   if (name === 'quest') {
     // 点「探险」tab 直接进到该玩的那一关（地图可从关卡页「🗺️ 地图」打开）
     const nx = qNextLevel(state.quest.region, state.quest.level);
@@ -4919,7 +5435,13 @@ function switchView(name) {
   render();
 }
 
+let __booted = false;
 document.addEventListener('DOMContentLoaded', () => {
+  // 只初始化一次：DOMContentLoaded 若被重复触发（或脚本被重复引入），事件不能重复绑，
+  // 否则一次点击会跑两遍——录音按钮会被「开了又立刻关掉」，孩子就觉得点了没反应
+  if (__booted) return;
+  __booted = true;
+
   // 底部导航
   $('#tabbar').addEventListener('click', e => {
     const t = e.target.closest('.tab');
@@ -5095,6 +5617,57 @@ document.addEventListener('DOMContentLoaded', () => {
       render();
       return;
     }
+    // 跟读（回声冰谷）
+    if (act === 'say-play') {
+      const si = state.sayQs[state.sayI];
+      const s = si === undefined ? null : data.sentences[si];
+      if (s && s.en) {
+        sfx('tap');
+        speakCheck(s.en, { rate: 0.7 }, () => toast('没听到声音？先检查 iPad 侧边的静音开关，或把音量调大', 4600));
+      }
+      return;
+    }
+    if (act === 'say-mic') { sayToggleRec(); return; }
+    if (act === 'say-hear') {
+      playUrl(sayUrl, () => toast('再点一次 🔊 试试，可能被系统拦了一下', 3000));
+      return;
+    }
+    if (act === 'say-again') {
+      if (sayUrl) { try { URL.revokeObjectURL(sayUrl); } catch (e) {} }
+      sayUrl = null;
+      sfx('tap');
+      sayToggleRec();
+      return;
+    }
+    if (act === 'say-ok') {
+      // 自己觉得说清楚了就过 —— 不打分、不评判
+      sfx('right');
+      sayAdvance(true);
+      return;
+    }
+    if (act === 'say-next') {
+      if (state.recording) { toast('还在录音呢——先说完了再点下一句 ⏹', 2600); return; }
+      const said = !!sayUrl;
+      if (!said) toast('这次没录音，星星先不亮 ✨ 下次先点 🎤 说出来', 3200);
+      sayAdvance(said);
+      return;
+    }
+    if (act === 'say-skip') {
+      if (sayUrl) { try { URL.revokeObjectURL(sayUrl); } catch (e) {} }
+      sayUrl = null;
+      if (state.sayQs.length) state.sayI = (state.sayI + 1) % state.sayQs.length;
+      sfx('tap');
+      render();
+      return;
+    }
+    if (act === 'say-restart') {
+      hideOverlay();
+      state.sayQs = []; state.sayI = 0; sayUrl = null;
+      sfx('tap');
+      render();
+      return;
+    }
+
     if (act === 'tk-avatar') { pickAvatar(); return; }
     if (act === 'tk-jump') {
       const i = +el.dataset.i;
@@ -5108,8 +5681,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     if (act === 'tk-mic') { talkMic(); return; }
-    if (act === 'tk-hear') { if (talkRecUrl) { const au = new Audio(talkRecUrl); au.play().catch(() => {}); } return; }
-    if (act === 'tk-play') { speak(data.sentences[state.talkI].en, { rate: 0.75 }); return; }
+    if (act === 'tk-hear') { playUrl(talkRecUrl, () => toast('再点一次 🔊 试试，可能被系统拦了一下', 3000)); return; }
+    if (act === 'tk-play') {
+      const l = talkLine();
+      if (!l.en) { toast('这句还没准备好，点「下一句」试试'); return; }
+      if (el) { el.classList.add('playing'); setTimeout(() => el.classList.remove('playing'), 1000); }
+      sfx('tap');
+      speakCheck(l.en, { rate: 0.75 }, () => toast('没听到声音？先检查 iPad 侧边的静音开关，或把音量调大', 4600));
+      return;
+    }
     if (act === 'tk-done') { talkDone(); return; }
     if (act === 'tk-prev') { stopTalkRec(); state.talkI = Math.max(0, state.talkI - 1); sfx('tap'); render(); return; }
     if (act === 'tk-restart') { stopTalkRec(); state.talkI = 0; hideOverlay(); sfx('tap'); render(); return; }
